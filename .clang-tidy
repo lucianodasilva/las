@@ -1,0 +1,71 @@
+# for details on coding style rules check: https://clang.llvm.org/extra/clang-tidy/checks/readability-identifier-naming.html#cmdoption-arg-enumprefix
+
+Checks:
+  bugprone-*,
+  hicpp-*,
+  -hicpp-special-member-functions,
+  -hicpp-no-array-decay,
+  misc-*,
+  -misc-non-private-member-variables-in-classes,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  performance-*,
+  readability-*
+
+CheckOptions:
+  # constvars variable
+  - key: readability-identifier-naming.ConstantCase
+    value: UPPER_CASE
+  # namespace naming
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case
+  # class naming
+  - key: readability-identifier-naming.ClassCase
+    value: lower_case
+  # template parameters
+  - key: readability-identifier-naming.TemplateParameterCase
+    value: lower_case
+  - key: readability-identifier-naming.TemplateParameterSuffix
+    value: _t
+  - key: readability-identifier-naming.ValueTemplateParameterCase
+    value: UPPER_CASE
+  # class method naming
+  - key: readability-identifier-naming.MethodCase
+    value: lower_case
+  # public member
+  - key: readability-identifier-naming.PublicMemberCase
+    value: lower_case
+  # private member
+  - key: readability-identifier-naming.PrivateMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.PrivateMemberPrefix
+    value: _
+  # parameters
+  - key: readability-identifier-naming.ParameterCase
+    value: lower_case
+  # local variable
+  - key: readability-identifier-naming.LocalVariableCase
+    value: lower_case
+  # constexpr variable
+  - key: readability-identifier-naming.ConstexprVariableCase
+    value: UPPER_CASE
+  # static variable
+  - key: readability-identifier-naming.GlobalVariableCase
+    value: lower_case
+  # using
+  - key: readability-identifier-naming.TypeAliasCase
+    value: lower_case
+  # function
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+  # global
+  - key: readability-identifier-naming.GlobalConstantCase
+    value: UPPER_CASE
+  # enums
+  - key: readability-identifier-naming.EnumCase
+    value: lower_case
+  - key: readability-identifier-naming.EnumConstantCase
+    value: lower_case
+  # macros
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE
