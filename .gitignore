@@ -1,3 +1,11 @@
+# ide files and folders
+/build
+/cmake-build-*
+/.idea
+/.code
+/.vs
+/out
+
 # Prerequisites
 *.d
 
