@@ -6,6 +6,9 @@
 /.vs
 /out
 
+# conan stuffs
+CMakeUserPresets.json
+
 # Prerequisites
 *.d
 

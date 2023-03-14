@@ -13,7 +13,7 @@ namespace las {
     }
 
     template<class num_t>
-    inline num_t next_pow_2(num_t value) {
+    constexpr inline num_t next_pow_2(num_t value) {
         static_assert(std::is_unsigned<num_t>::value, "next_pow_2 does not support signed data types!");
 
         if (is_pow_2(value)) {

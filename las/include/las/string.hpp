@@ -145,7 +145,7 @@ namespace las::string {
     }
 
     template<std::size_t LEN>
-    inline std::size_t length(char const (&)[LEN]) { // NOLINT: signature, not definition
+    constexpr std::size_t length(char const (&)[LEN]) { // NOLINT: signature, not definition
         return LEN;
     }
 
@@ -221,7 +221,7 @@ namespace las::string {
         while (next_line(cursor, line, line_delimiter)) {
             if (line.empty()) {
                 break;
-}
+            }
 
             std::string_view key;
             std::string_view value;

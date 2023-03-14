@@ -116,13 +116,12 @@ namespace las {
         void enqueue_task (task_proxy && proxy) override;
     private:
 
-        std::vector < std::thread >                             _worker_threads;
+        std::vector < std::thread >     _worker_threads;
 
         locked_value <std::queue < dispatcher::task_proxy >, std::mutex>
-                                                                _tasks;
-
-        std::condition_variable	                                _exec_condition;
-        std::atomic_bool 			                            _is_running { true };
+                                        _tasks;
+        std::condition_variable         _exec_condition;
+        std::atomic_bool 		        _is_running { true };
 
     };
 
