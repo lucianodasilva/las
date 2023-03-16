@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout
 
 
-class lasRecipe(ConanFile):
+class LasRecipe(ConanFile):
 
     name = "las"
     version = "1.0"

@@ -14,7 +14,8 @@ set(las_include_files
         include/las/small_vector.hpp
         include/las/string.hpp
         include/las/system.hpp
-        include/las/traits.hpp)
+        include/las/traits.hpp
+        include/las/view.hpp)
 
 set(las_source_files
         src/las.cpp
@@ -45,6 +46,7 @@ if (LAS_UNIT_TEST)
     find_package (Catch2 CONFIG REQUIRED)
 
     add_executable (las-unit
+            test/byte_swap.cpp
             test/dispatcher.cpp
             test/ring_buffer.cpp
             test/scope_guards.cpp
