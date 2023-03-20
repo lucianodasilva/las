@@ -7,6 +7,7 @@
 #include <cstring>
 #include <locale>
 #include <optional>
+#include <string>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
@@ -108,7 +109,7 @@ namespace las::string {
     inline std::optional<num_t> as_number(std::string_view value) {
         num_t num{};
 
-        if (auto [p, e] = std::from_chars(value.begin(), value.end(), num);
+        if (auto [p, e] = std::from_chars(value.data(), value.data() + value.size(), num);
                 e == std::errc()) {
             return num;
         }

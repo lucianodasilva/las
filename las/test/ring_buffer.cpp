@@ -277,7 +277,7 @@ namespace las::test {
         }
     }
 
-    TEST_CASE("DRIVERS-774-GROW-CORRUPTION", "[ring_buffer]") {
+    TEST_CASE("[BUG] GROW-CORRUPTION", "[ring_buffer]") {
         // create victim
         ring_buffer<uint8_t> victim;
         size_t const INITIAL_SEQUENCE = 16;

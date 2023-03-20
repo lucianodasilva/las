@@ -1,7 +1,7 @@
 #include "las/ip_lock.hpp"
 #include "las/system.hpp"
 
-#ifdef LAS_OS_GNU_LINUX
+#if defined (LAS_OS_GNU_LINUX)
 
 #include <filesystem>
 #include <sys/file.h>
@@ -12,7 +12,7 @@ namespace las {
 	struct ip_lock::internal {
 	public:
 
-		inline explicit internal (std::string_view lock_name) :
+		inline explicit internal (std::string const & lock_name) :
 			file_desc {([lock_name]() -> int {
 				namespace fs = std::filesystem;
 
@@ -55,6 +55,48 @@ namespace las {
 	ip_lock::~ip_lock () = default;
 
 	ip_lock::operator bool () const {
+		return _internal->locked;
+	}
+
+}
+
+#elif defined (LAS_OS_WINDOWS)
+
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+
+namespace las {
+
+	struct ip_lock::internal {
+	public:
+
+		inline explicit internal(std::string const & lock_name) :
+			mutex_handle (::CreateMutex(
+				NULL,
+				FALSE,
+				lock_name.c_str ())),
+			locked (::WaitForSingleObject (
+				mutex_handle,
+				0) == WAIT_OBJECT_0)
+		{}
+
+		~internal() {
+			if (locked) {
+				::ReleaseMutex(mutex_handle);
+			}
+		}
+
+		HANDLE	mutex_handle;
+		bool	locked;
+	};
+
+	ip_lock::ip_lock(std::string const & lock_name) :
+		_internal{ std::make_unique < ip_lock::internal >(lock_name) }
+	{}
+
+	ip_lock::~ip_lock() = default;
+
+	ip_lock::operator bool() const {
 		return _internal->locked;
 	}
 

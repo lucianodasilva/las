@@ -13,7 +13,7 @@ namespace las {
     struct ip_lock : no_copy {
     public:
 
-        explicit ip_lock(std::string_view lock_name);
+        explicit ip_lock(std::string const & lock_name);
 
         ~ip_lock ();
 

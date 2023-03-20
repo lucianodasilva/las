@@ -51,7 +51,8 @@ if (LAS_UNIT_TEST)
             test/ring_buffer.cpp
             test/scope_guards.cpp
             test/small_vector.cpp
-            test/string.cpp)
+            test/string.cpp 
+            test/view.cpp)
 
     target_link_libraries(
             las-unit PUBLIC
@@ -59,4 +60,11 @@ if (LAS_UNIT_TEST)
             las-test
             Catch2::Catch2
             Catch2::Catch2WithMain)
+
+    if(MSVC)
+        target_link_options(
+                las-unit PUBLIC 
+                "/ignore:4099")
+    endif()
+
 endif()

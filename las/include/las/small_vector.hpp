@@ -299,8 +299,8 @@ namespace las {
 
             iterator place = begin() + offset;
 
-            // move items forward
-            std::move_backward(place, end(), end() + 1);
+            // move items right
+            this->uninitialized_move_backward(place, end(), end() + 1);
 
             // emplace items
             alloc_traits_t::construct(_impl, place, std::forward<args_t>(args)...);
@@ -335,8 +335,8 @@ namespace las {
 
             iterator place = begin() + offset;
 
-            // move items forward
-            std::move_backward(place, end(), end() + n);
+            // move items right
+            this->uninitialized_move_backward(place, end(), end() + n);
             std::uninitialized_fill_n(place, n, value);
 
             _impl._end_ptr = (_impl._end_ptr + n);
@@ -666,11 +666,20 @@ namespace las {
             );
         }
 
+        inline void uninitialized_move_backward(pointer b, pointer e, pointer d) {
+            if constexpr (std::is_trivially_copyable_v<type_t>) {
+                std::copy_backward(b, e, d);
+            } else {
+                while (b < e) {
+                    alloc_traits_t::construct(_impl, --d, std::move (*(--e)));
+                }
+            }
+        }
+
         inline void destroy_backward(pointer b, pointer e) {
             if constexpr (!std::is_trivially_destructible_v<type_t>) {
                 while (b < e) {
-                    --e;
-                    alloc_traits_t::destroy(_impl, e);
+                    alloc_traits_t::destroy(_impl, --e);
                 }
             }
         }
