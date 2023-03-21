@@ -23,6 +23,7 @@ jobs:
         cd build
         cmake --build . --target=all
     - name: test
+      run: |
         cd build
         ./las/las-unit
         
