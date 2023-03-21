@@ -11,12 +11,18 @@ namespace las {
 
 #pragma region "POW2 Values"
 
+    /// Check if value is a power-of-two
+    /// \tparam num_t Unsigned integer type
     template<typename num_t>
     constexpr inline bool is_pow_2(num_t num) {
         static_assert(std::is_unsigned<num_t>::value, "is_pow_2 does not support signed data types!");
         return (num & (num - 1)) == 0;
     }
 
+    /// Calculate the next power-of-two of a power-of-two value
+    /// \tparam Unsigned integer type
+    /// \param num Value to check
+    /// \return The next pow2 following the value parameter. If the value itself is a pow2, then the same value will be returned.
     template<class num_t>
     constexpr inline num_t next_pow_2(num_t value) {
         static_assert(std::is_unsigned<num_t>::value, "next_pow_2 does not support signed data types!");
@@ -74,14 +80,20 @@ namespace las {
         return value;
     }
 
+    /// Swaps the byte order of a integer value
     template < typename type_t >
     inline type_t byte_swap (type_t value) noexcept {
+        static_assert(std::is_integral<num_t>::value, "byte_swap only supports integers!");
         return static_cast < type_t > (
                 byte_swap (
                         static_cast < typename std::make_unsigned < type_t >::type >(
                                 value)));
     }
 
+    /// Converts value endianess from the 'native' the 'expected' endianness
+    /// \tparam type_t Value type
+    /// \tparam ENDIAN expected endianness
+    /// \return Value with bytes ordered as the expected endianness
     template < las::endian ENDIAN,typename type_t >
     inline type_t endian_cast (type_t value) {
         if constexpr (ENDIAN == las::endian::native || ENDIAN == las::endian::unknown) {

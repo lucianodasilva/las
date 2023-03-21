@@ -1,2 +1,2 @@
 # las
-Idioms i tend to write on every single project, and other tools
+Idioms and tools i noticed i tend to re-write on every single project i'm in.
