@@ -9,6 +9,10 @@ namespace las::string::test {
         return {source.begin(), source.end()};
     }
 
+    inline std::string to_string(std::string_view view) {
+        return std::string(view);
+    }
+
     TEST_CASE("String Split Into", "[string]") {
         std::string const TEST_STRING{"string_under_test"};
 
@@ -36,7 +40,7 @@ namespace las::string::test {
             split_into(TEST_STRING, OTHER_DELIMITER, out_container);
 
             REQUIRE(out_container.size() == 1);
-            REQUIRE(out_container.at(0) == TEST_STRING);
+            REQUIRE(to_string (out_container.at(0)) == TEST_STRING);
         }
     }
 
@@ -67,27 +71,27 @@ namespace las::string::test {
 
         SECTION("Left Trim") {
             auto result = trim_left(TEST_STRING_LEFT);
-            REQUIRE(result == EXPECTANCY);
+            REQUIRE(to_string (result) == EXPECTANCY);
         }
 
         SECTION("Left Trim, ignore right") {
             auto result = trim_left(TEST_STRING_BOTH);
-            REQUIRE(result == EXPECTANCY_RIGHT);
+            REQUIRE(to_string (result) == EXPECTANCY_RIGHT);
         }
 
         SECTION("Right Trim") {
             auto result = trim_right(TEST_STRING_RIGHT);
-            REQUIRE(result == EXPECTANCY);
+            REQUIRE(to_string (result) == EXPECTANCY);
         }
 
         SECTION("Right Trim, ignore left") {
             auto result = trim_right(TEST_STRING_BOTH);
-            REQUIRE(result == EXPECTANCY_LEFT);
+            REQUIRE(to_string (result) == EXPECTANCY_LEFT);
         }
 
         SECTION("Trim") {
             auto result = trim(TEST_STRING_BOTH);
-            REQUIRE(result == EXPECTANCY);
+            REQUIRE(to_string(result) == EXPECTANCY);
         }
     }
 
@@ -102,27 +106,27 @@ namespace las::string::test {
 
         SECTION("Left Trim") {
             auto result = trim_left(TEST_STRING_LEFT);
-            REQUIRE(result == EXPECTANCY);
+            REQUIRE(to_string (result) == EXPECTANCY);
         }
 
         SECTION("Left Trim, ignore right") {
             auto result = trim_left(TEST_STRING_BOTH);
-            REQUIRE(result == EXPECTANCY_RIGHT);
+            REQUIRE(to_string (result) == EXPECTANCY_RIGHT);
         }
 
         SECTION("Right Trim") {
             auto result = trim_right(TEST_STRING_RIGHT);
-            REQUIRE(result == EXPECTANCY);
+            REQUIRE(to_string (result) == EXPECTANCY);
         }
 
         SECTION("Right Trim, ignore left") {
             auto result = trim_right(TEST_STRING_BOTH);
-            REQUIRE(result == EXPECTANCY_LEFT);
+            REQUIRE(to_string (result) == EXPECTANCY_LEFT);
         }
 
         SECTION("Trim") {
             auto result = trim(TEST_STRING_BOTH);
-            REQUIRE(result == EXPECTANCY);
+            REQUIRE(to_string (result) == EXPECTANCY);
         }
     }
 
@@ -151,17 +155,17 @@ namespace las::string::test {
 
         SECTION("Trim Left") {
             auto output = trim_left(TEST_STRING);
-            REQUIRE (output == EXPECTANCY);
+            REQUIRE (to_string(output) == EXPECTANCY);
         }
 
         SECTION("Trim Right") {
             auto output = trim_right(TEST_STRING);
-            REQUIRE (output == EXPECTANCY);
+            REQUIRE (to_string(output) == EXPECTANCY);
         }
 
         SECTION("Trim") {
             auto output = trim(TEST_STRING);
-            REQUIRE (output == EXPECTANCY);
+            REQUIRE (to_string(output) == EXPECTANCY);
         }
     }
 
@@ -171,17 +175,17 @@ namespace las::string::test {
 
         SECTION("Trim Left") {
             auto output = trim_left(TEST_STRING);
-            REQUIRE (output == EXPECTANCY);
+            REQUIRE (to_string(output) == EXPECTANCY);
         }
 
         SECTION("Trim Right") {
             auto output = trim_right(TEST_STRING);
-            REQUIRE (output == EXPECTANCY);
+            REQUIRE (to_string(output) == EXPECTANCY);
         }
 
         SECTION("Trim") {
             auto output = trim(TEST_STRING);
-            REQUIRE (output == EXPECTANCY);
+            REQUIRE (to_string(output) == EXPECTANCY);
         }
     }
 
@@ -191,17 +195,17 @@ namespace las::string::test {
 
         SECTION("Trim Left") {
             auto output = trim_left(TEST_STRING);
-            REQUIRE (output == EXPECTANCY);
+            REQUIRE (to_string(output) == EXPECTANCY);
         }
 
         SECTION("Trim Right") {
             auto output = trim_right(TEST_STRING);
-            REQUIRE (output == EXPECTANCY);
+            REQUIRE (to_string(output) == EXPECTANCY);
         }
 
         SECTION("Trim") {
             auto output = trim(TEST_STRING);
-            REQUIRE (output == EXPECTANCY);
+            REQUIRE (to_string(output) == EXPECTANCY);
         }
     }
 
@@ -218,27 +222,27 @@ namespace las::string::test {
 
         SECTION("Left Trim") {
             auto result = trim_left(TEST_STRING_LEFT, TRIM_TOKEN);
-            REQUIRE(result == EXPECTANCY);
+            REQUIRE(to_string (result) == EXPECTANCY);
         }
 
         SECTION("Left Trim, ignore right") {
             auto result = trim_left(TEST_STRING_BOTH, TRIM_TOKEN);
-            REQUIRE(result == EXPECTANCY_RIGHT);
+            REQUIRE(to_string (result) == EXPECTANCY_RIGHT);
         }
 
         SECTION("Right Trim") {
             auto result = trim_right(TEST_STRING_RIGHT, TRIM_TOKEN);
-            REQUIRE(result == EXPECTANCY);
+            REQUIRE(to_string (result) == EXPECTANCY);
         }
 
         SECTION("Right Trim, ignore left") {
             auto result = trim_right(TEST_STRING_BOTH, TRIM_TOKEN);
-            REQUIRE(result == EXPECTANCY_LEFT);
+            REQUIRE(to_string (result) == EXPECTANCY_LEFT);
         }
 
         SECTION("Trim") {
             auto result = trim(TEST_STRING_BOTH, TRIM_TOKEN);
-            REQUIRE(result == EXPECTANCY);
+            REQUIRE(to_string (result) == EXPECTANCY);
         }
     }
 
@@ -250,17 +254,17 @@ namespace las::string::test {
 
         SECTION("Trim Left") {
             auto output = trim_left(TEST_STRING, TRIM_TOKEN);
-            REQUIRE (output == EXPECTANCY);
+            REQUIRE (to_string(output) == EXPECTANCY);
         }
 
         SECTION("Trim Right") {
             auto output = trim_right(TEST_STRING, TRIM_TOKEN);
-            REQUIRE (output == EXPECTANCY);
+            REQUIRE (to_string(output) == EXPECTANCY);
         }
 
         SECTION("Trim") {
             auto output = trim(TEST_STRING, TRIM_TOKEN);
-            REQUIRE (output == EXPECTANCY);
+            REQUIRE (to_string (output) == EXPECTANCY);
         }
     }
 
@@ -306,7 +310,7 @@ namespace las::string::test {
 
         SECTION("With valid strings") {
             std::string result = cat("String ", "Under ", "Test");
-            REQUIRE (result == EXPECTANCY_VALID);
+            REQUIRE (to_string (result) == EXPECTANCY_VALID);
         }
 
         SECTION("Different string types as input") {
@@ -317,7 +321,7 @@ namespace las::string::test {
 
             std::string result = cat(STRING_VIEW, CHAR, STRING, CHAR, ARRAY);
 
-            REQUIRE (result == EXPECTANCY_VALID);
+            REQUIRE (to_string (result) == EXPECTANCY_VALID);
         }
     }
 
@@ -435,8 +439,8 @@ namespace las::string::test {
             bool const RESULT = next_line(view_line, line, DELIMITER);
 
             REQUIRE(RESULT);
-            REQUIRE (line == EXPECTANCY_1_1);
-            REQUIRE (view_line == EXPECTANCY_1_2);
+            REQUIRE (to_string(line) == EXPECTANCY_1_1);
+            REQUIRE (to_string (view_line) == EXPECTANCY_1_2);
         }
 
         SECTION("Multiple new line") {
@@ -446,16 +450,16 @@ namespace las::string::test {
             bool const RESULT = next_line(test_line, line, DELIMITER);
 
             REQUIRE (RESULT);
-            REQUIRE (line == EXPECTANCY_1_1);
-            REQUIRE (test_line == EXPECTANCY_1_2);
+            REQUIRE (to_string(line) == EXPECTANCY_1_1);
+            REQUIRE (to_string(test_line) == EXPECTANCY_1_2);
 
             std::string_view new_line;
 
             bool const RESULT2 = next_line(test_line, new_line, DELIMITER);
 
             REQUIRE (RESULT2);
-            REQUIRE (new_line == EXPECTANCY_2_1);
-            REQUIRE (test_line == EXPECTANCY_2_2);
+            REQUIRE (to_string(new_line) == EXPECTANCY_2_1);
+            REQUIRE (to_string(test_line) == EXPECTANCY_2_2);
         }
 
         SECTION("Other delimiter") {

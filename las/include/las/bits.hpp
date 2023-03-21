@@ -93,6 +93,30 @@ namespace las {
 
 #pragma endregion
 
+#pragma region "Bit set/clear and read"
+
+    template < typename value_t = uint8_t, typename ... bits_t >
+    inline value_t bitmask(bits_t const ... BITS) noexcept {
+        return ((value_t(0x1) << BITS) | ...);
+    }
+
+    template < typename value_t, typename ... bits_t >
+    inline value_t bit_set(value_t VALUE, bits_t const ... BITS) noexcept {
+        return VALUE | bitmask(BITS...);
+    }
+
+    template < typename value_t, typename ... bits_t >
+    inline value_t bit_clear(value_t VALUE, bits_t const ... BITS) noexcept {
+        return VALUE & ~bitmask(BITS...);
+    }
+
+    template < typename value_t >
+    inline bool is_bit_set(value_t const VALUE, uint8_t const BIT) noexcept {
+        return (VALUE & bitmask(BIT)) != value_t ();
+    }
+
+#pragma endregion
+
 }
 
 #endif //LAS_BITS_HPP

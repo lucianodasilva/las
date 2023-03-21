@@ -17,5 +17,6 @@
 #include "las/string.hpp"
 #include "las/system.hpp"
 #include "las/traits.hpp"
+#include "las/view.hpp"
 
 #endif

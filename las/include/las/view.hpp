@@ -8,6 +8,7 @@
 namespace las {
 
     namespace details {
+
         template < typename value_t >
         struct basic_view_traits {
         public:
@@ -56,6 +57,7 @@ namespace las {
                 _size(size)
             {}
 
+            inline bool empty() const noexcept { return _size == 0 || _data == nullptr; }
             inline pointer data() const noexcept { return _data; }
             inline size_type size() const noexcept { return _size; }
 
@@ -83,17 +85,22 @@ namespace las {
             inline constexpr basic_const_view() = default;
 
             inline constexpr basic_const_view(pointer begin, pointer end) :
-                base_class::base_class(begin, end - begin)
+                base_class(begin, end - begin)
             {}
 
             template < typename ... others_t >
-            inline constexpr explicit basic_const_view(std::vector < value_type, others_t... >& vect) :
-                base_class::base_class(vect.data(), vect.size())
+            inline constexpr explicit basic_const_view(std::vector < value_type, others_t... > & vect) :
+                base_class(vect.data(), vect.size())
+            {}
+
+            template < typename ... others_t >
+            inline constexpr explicit basic_const_view(std::vector < std::decay_t < value_type >, others_t... > const & vect) :
+                base_class(vect.data(), vect.size())
             {}
 
             template < size_type ARRAY_SIZE >
             inline constexpr explicit basic_const_view(value_type(&array)[ARRAY_SIZE]) :
-                base_class::base_class(array, ARRAY_SIZE)
+                base_class(array, ARRAY_SIZE)
             {}
 
             inline constexpr const_iterator begin() const noexcept {
@@ -117,11 +124,11 @@ namespace las {
             }
 
             inline constexpr const_reference at(size_type const INDEX) const {
-                if (INDEX >= this->_size) {
+                if (INDEX >= this->size()) {
                     throw std::out_of_range("view::at: pos value out of range");
                 }
 
-                return *(this->_address + INDEX);
+                return *(this->data() + INDEX);
             }
 
         };
@@ -157,11 +164,11 @@ namespace las {
         }
 
         inline constexpr reference at(size_type const INDEX) {
-            if (INDEX >= this->_size) {
+            if (INDEX >= this->size()) {
                 throw std::out_of_range("view::at: pos value out of range");
             }
 
-            return *(this->_address + INDEX);
+            return *(this->data() + INDEX);
         }
 
     };
@@ -174,6 +181,23 @@ namespace las {
         using base_class::base_class;
     };
 
+
+    /** deduction guides **/
+    template < typename value_t >
+    view(value_t *, std::size_t) -> view < value_t >;
+
+    template < typename value_t >
+    view(value_t *, value_t *) -> view < value_t >;
+
+    template < typename value_t, std::size_t ARRAY_SIZE >
+    view(value_t(&)[ARRAY_SIZE]) -> view < value_t >;
+    
+    template < typename value_t, typename ... others_t >
+    view(std::vector < value_t, others_t... >&) -> view < value_t >;
+
+    template < typename value_t, typename ... others_t >
+    view(std::vector < value_t, others_t... > const &) -> view < value_t const >;
+
 }
 
-#endif //LAS_VIEW_HPP
+#endif

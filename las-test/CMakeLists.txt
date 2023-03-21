@@ -29,8 +29,6 @@ install(TARGETS las-test
 
 if (LAS_UNIT_TEST)
 
-    find_package (Catch2 CONFIG REQUIRED)
-
     add_executable (las-test-unit
             test/token.cpp)
 

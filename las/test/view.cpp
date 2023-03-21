@@ -1,6 +1,8 @@
 #include <catch2/catch_all.hpp>
 #include <las/view.hpp>
 
+#include <vector>
+
 namespace las::test {
 
 	std::unique_ptr < int[] > make_test_buffer(std::size_t length) {
@@ -41,27 +43,209 @@ namespace las::test {
 
 	SCENARIO("constructors", "[view]") {
 
-		GIVEN("a memory buffer") {
+		GIVEN("a dynamically allocated buffer") {
 			std::size_t const SOURCE_SIZE = 16;
 			auto buffer = make_test_buffer (SOURCE_SIZE);
 
 			WHEN("constructing with ptr/size pair") {
-				view < int > victim (buffer.get(), SOURCE_SIZE);
+				auto victim = view (buffer.get(), SOURCE_SIZE);
 
 				THEN("view must be properly constructed") {
-					REQUIRE(match(victim, buffer.get(), SOURCE_SIZE));
+					REQUIRE(victim.data() == buffer.get());
+					REQUIRE(victim.size() == SOURCE_SIZE);
 				}
 			}
 
 			WHEN("constructing with const ptr/size pair") {
-				view < int const > victim (static_cast < int const * > (buffer.get()), SOURCE_SIZE);
+				auto const* const_ptr = buffer.get();
+				auto victim = view (const_ptr, SOURCE_SIZE);
 
 				THEN("view must be properly constructed") {
-					REQUIRE(match(victim, buffer.get(), SOURCE_SIZE));
+					REQUIRE(victim.data() == buffer.get());
+					REQUIRE(victim.size() == SOURCE_SIZE);
+				}
+			}
+
+			WHEN("constructing with begin/end pair") {
+				auto victim = view (buffer.get(), buffer.get() + SOURCE_SIZE);
+
+				THEN("view must be properly constructed") {
+					REQUIRE(victim.data() == buffer.get());
+					REQUIRE(victim.size() == SOURCE_SIZE);
+				}
+			}
+
+			WHEN("constructing with const begin/end pair") {
+				auto const* const_ptr = buffer.get();
+				view < int const > victim(const_ptr, const_ptr + SOURCE_SIZE);
+
+				THEN("view must be properly constructed") {
+					REQUIRE(victim.data() == buffer.get());
+					REQUIRE(victim.size() == SOURCE_SIZE);
 				}
 			}
 		}
 
+		GIVEN("a 'c' array") {
+			std::size_t const SOURCE_SIZE = 16;
+
+			WHEN("constructing with 'c' array") {
+				int buffer[SOURCE_SIZE];
+				auto victim = view(buffer);
+
+				THEN("view must be properly constructed") {
+					REQUIRE(victim.data() == buffer);
+					REQUIRE(victim.size() == SOURCE_SIZE);
+				}
+			}
+
+			WHEN("constructing with const 'c' array") {
+				int const buffer[SOURCE_SIZE]{ 0 };
+				auto victim = view(buffer);
+
+				THEN("view must be properly constructed") {
+					REQUIRE(victim.data() == buffer);
+					REQUIRE(victim.size() == SOURCE_SIZE);
+				}
+			}
+		}
+
+		GIVEN("a vector") {
+			std::size_t const SOURCE_SIZE = 16;
+
+			WHEN("constructing with a vector") {
+				std::vector < int > source (SOURCE_SIZE);
+				auto victim = view(source);
+
+				THEN("view must be properly constructed") {
+					REQUIRE(victim.data() == source.data());
+					REQUIRE(victim.size() == SOURCE_SIZE);
+				}
+			}
+
+			WHEN("constructing with a const vector") {
+				std::vector < int > const source (SOURCE_SIZE);
+				auto victim = view (source);
+
+				THEN("view must be properly constructed") {
+					REQUIRE(victim.data() == source.data());
+					REQUIRE(victim.size() == SOURCE_SIZE);
+				}
+			}
+		}
+	}
+
+
+	SCENARIO("access state", "[view]") {
+
+		GIVEN("an empty view") {
+			auto victim = view < int >();
+
+			THEN("empty should return true") {
+				REQUIRE(victim.empty());
+			}
+
+			THEN("data should return nullptr") {
+				REQUIRE(victim.data() == nullptr);
+			}
+
+			THEN("size should return 0(zero)") {
+				REQUIRE(victim.size() == 0);
+			}
+		}
+
+		GIVEN("a view pointing to data") {
+			std::size_t const SOURCE_SIZE = 16;
+
+			auto buffer = make_test_buffer(SOURCE_SIZE);
+			auto victim = view(buffer.get(), SOURCE_SIZE);
+
+			THEN("empty should return false") {
+				REQUIRE_FALSE(victim.empty());
+			}
+
+			THEN("data should point to data") {
+				REQUIRE(victim.data() == buffer.get());
+			}
+
+			THEN("size should return the correct length") {
+				REQUIRE(victim.size() == SOURCE_SIZE);
+			}
+		}
+	}
+
+	SCENARIO("iterate", "[view]") {
+
+		GIVEN("a 'filled' view") {
+			std::size_t const SOURCE_SIZE = 16;
+
+			auto buffer = make_test_buffer(SOURCE_SIZE);
+			auto victim = view(buffer.get(), SOURCE_SIZE);
+
+			THEN("iterating elements should match the source") {
+				REQUIRE(match(victim, buffer.get(), SOURCE_SIZE));
+			}
+		}
+
+		GIVEN("a const 'filled' view") {
+			std::size_t const SOURCE_SIZE = 16;
+
+			auto buffer = make_test_buffer(SOURCE_SIZE);
+			auto const victim = view(buffer.get(), SOURCE_SIZE);
+
+			THEN("iterating elements should match the source") {
+				REQUIRE(match(victim, buffer.get(), SOURCE_SIZE));
+			}
+		}
+	}
+
+	SCENARIO("random access", "[view]") {
+
+		GIVEN("a 'filled' view") {
+			std::size_t const SOURCE_SIZE = 16;
+
+			auto buffer = make_test_buffer(SOURCE_SIZE);
+			auto victim = view(buffer.get(), SOURCE_SIZE);
+
+			THEN("accessing elements by subscript operator should match the source") {
+				for (int i = 0; i < SOURCE_SIZE; ++i) {
+					REQUIRE(victim[i] == buffer[i]);
+				}
+			}
+
+			THEN("accessing elements by calling 'at' should match the source") {
+				for (int i = 0; i < SOURCE_SIZE; ++i) {
+					REQUIRE(victim.at (i) == buffer[i]);
+				}
+			}
+
+			THEN("accessing elements out of range should raise an exception") {
+				REQUIRE_THROWS_AS(victim.at(SOURCE_SIZE + 1), std::out_of_range);
+			}
+		}
+
+		GIVEN("a const 'filled' view") {
+			std::size_t const SOURCE_SIZE = 16;
+
+			auto buffer = make_test_buffer(SOURCE_SIZE);
+			auto const victim = view(buffer.get(), SOURCE_SIZE);
+
+			THEN("accessing elements by subscript operator should match the source") {
+				for (int i = 0; i < SOURCE_SIZE; ++i) {
+					REQUIRE(victim[i] == buffer[i]);
+				}
+			}
+
+			THEN("accessing elements by calling 'at' should match the source") {
+				for (int i = 0; i < SOURCE_SIZE; ++i) {
+					REQUIRE(victim.at(i) == buffer[i]);
+				}
+			}
+
+			THEN("accessing elements out of range should raise an exception") {
+				REQUIRE_THROWS_AS(victim.at(SOURCE_SIZE + 1), std::out_of_range);
+			}
+		}
 	}
 
 }

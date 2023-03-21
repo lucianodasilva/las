@@ -312,13 +312,12 @@ namespace las {
             auto new_begin = _impl.allocate(n);
             auto data_size = size();
 
-            // TODO: update compiler
-            //if (std::is_trivially_copyable < _t >::value) {
-            range_copy(new_begin);
-            range_destroy();
-            //} else {
-            //	range_move(new_begin);
-            //}
+            if (std::is_trivially_copyable < value_type >::value) {
+                range_copy(new_begin);
+                range_destroy();
+            } else {
+            	range_move(new_begin);
+            }
 
             _impl.self_deallocate();
             _impl.set(new_begin, n);
