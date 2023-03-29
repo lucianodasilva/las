@@ -4,6 +4,7 @@
 /.idea
 /.code
 /.vs
+/.vscode
 /out
 
 # conan stuffs

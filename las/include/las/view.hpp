@@ -140,7 +140,7 @@ namespace las {
         using base_class = details::basic_const_view < value_t >;
     public:
         using base_class::base_class;
-        using base_class::traits;
+        using traits        = typename base_class::traits;
 
         using iterator      = typename traits::iterator;
         using reference     = typename traits::reference;

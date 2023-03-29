@@ -83,7 +83,7 @@ namespace las {
     /// Swaps the byte order of a integer value
     template < typename type_t >
     inline type_t byte_swap (type_t value) noexcept {
-        static_assert(std::is_integral<num_t>::value, "byte_swap only supports integers!");
+        static_assert(std::is_integral<type_t>::value, "byte_swap only supports integers!");
         return static_cast < type_t > (
                 byte_swap (
                         static_cast < typename std::make_unsigned < type_t >::type >(

@@ -48,7 +48,7 @@ namespace las {
 		bool locked;
 	};
 
-	ip_lock::ip_lock (std::string_view lock_name) :
+	ip_lock::ip_lock (std::string const & lock_name) :
 		_internal { std::make_unique < ip_lock::internal > (lock_name) }
 	{}
 
