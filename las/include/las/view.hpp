@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <stdexcept>
+#include <iterator>
 
 namespace las {
 
@@ -23,6 +24,10 @@ namespace las {
             using iterator          = pointer;
             using const_iterator    = const_pointer;
 
+            using reverse_iterator  = std::reverse_iterator < iterator >;
+            using const_reverse_iterator
+                                    = std::reverse_iterator < const_pointer >;
+
             using size_type         = std::size_t;
         };
 
@@ -39,6 +44,9 @@ namespace las {
 
             using iterator          = const_pointer;
             using const_iterator    = const_pointer;
+
+            using reverse_iterator  = std::reverse_iterator < const_iterator >;
+            using const_reverse_iterator = std::reverse_iterator < const_pointer >;
 
             using size_type         = std::size_t;
         };
@@ -73,14 +81,14 @@ namespace las {
         public:
 
             using base_class::base_class;
-            using traits            = basic_view_traits < value_t >;
-
-            using value_type        = typename traits::value_type;
-            using pointer           = typename traits::pointer;
-            using const_pointer     = typename traits::const_pointer;
-            using const_iterator    = typename traits::const_iterator;
-            using const_reference   = typename traits::const_reference;
-            using size_type         = typename traits::size_type;
+            using traits                    = basic_view_traits < value_t >;
+            using value_type                = typename traits::value_type;
+            using pointer                   = typename traits::pointer;
+            using const_pointer             = typename traits::const_pointer;
+            using const_iterator            = typename traits::const_iterator;
+            using const_reverse_iterator    = typename traits::const_reverse_iterator;
+            using const_reference           = typename traits::const_reference;
+            using size_type                 = typename traits::size_type;
 
             inline constexpr basic_const_view() = default;
 
@@ -119,6 +127,14 @@ namespace las {
                 return this->end();
             }
 
+            inline constexpr const_reverse_iterator rbegin() const noexcept {
+                return const_reverse_iterator(this->end());
+            }
+
+            inline constexpr const_reverse_iterator rend() const noexcept {
+                return const_reverse_iterator(this->begin());
+            }
+
             inline constexpr const_reference operator [](size_type const INDEX) const noexcept {
                 return *(this->data() + INDEX);
             }
@@ -140,14 +156,16 @@ namespace las {
         using base_class = details::basic_const_view < value_t >;
     public:
         using base_class::base_class;
-        using traits        = typename base_class::traits;
-
-        using iterator      = typename traits::iterator;
-        using reference     = typename traits::reference;
-        using size_type     = typename traits::size_type;
+        using traits            = typename base_class::traits;
+        using iterator          = typename traits::iterator;
+        using reverse_iterator  = typename traits::reverse_iterator;
+        using reference         = typename traits::reference;
+        using size_type         = typename traits::size_type;
 
         using base_class::begin;
         using base_class::end;
+        using base_class::rbegin;
+        using base_class::rend;
         using base_class::operator[];
         using base_class::at;
 
@@ -157,6 +175,14 @@ namespace las {
 
         inline constexpr iterator end() noexcept {
             return this->data() + this->size();
+        }
+
+        inline constexpr reverse_iterator rbegin() noexcept {
+            return reverse_iterator(this->end());
+        }
+
+        inline constexpr reverse_iterator rend() noexcept {
+            return reverse_iterator(this->begin());
         }
 
         inline constexpr reference operator [](size_type const INDEX) noexcept {
@@ -197,6 +223,40 @@ namespace las {
 
     template < typename value_t, typename ... others_t >
     view(std::vector < value_t, others_t... > const &) -> view < value_t const >;
+
+    // view utils
+    template < typename value_t >
+    inline bool begins_with(las::view < value_t > view, las::view < value_t > token) {
+        if (view.size() < token.size()) {
+            return false;
+        }
+
+        return std::equal(token.begin(), token.end(), view.begin());
+    }
+
+    template < typename value_t >
+    inline bool ends_with(las::view < value_t > view, las::view < value_t > token) {
+        if (view.size() < token.size()) {
+            return false;
+        }
+
+        return std::equal(token.rbegin(), token.rend(), view.rbegin());
+    }
+
+    template < typename value_t >
+    inline bool contains(las::view < value_t > view, las::view < value_t > sub_view) {
+        if (sub_view.empty() || sub_view.size() > view.size()) {
+            return false;
+        }
+
+        for (auto it = view.begin(); it != (view.end() - sub_view.size() + 1); ++it) {
+            if (std::equal(sub_view.begin(), sub_view.end(), it)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 }
 

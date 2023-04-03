@@ -58,7 +58,8 @@ if (LAS_UNIT_TEST)
             test/ring_buffer.cpp
             test/scope_guards.cpp
             test/small_vector.cpp
-            test/string.cpp 
+            test/string.tools.cpp
+            test/view.tools.cpp
             test/view.cpp)
 
     target_link_libraries(
