@@ -39,7 +39,7 @@ set_target_properties(las PROPERTIES
         PUBLIC_HEADER "${las_include_files}")
 
 install(TARGETS las
-        PUBLIC_HEADER DESTINATION include)
+        PUBLIC_HEADER DESTINATION include/las)
 
 if (BUILD_TESTS)
     find_package  (Catch2 CONFIG REQUIRED)
