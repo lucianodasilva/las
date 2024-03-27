@@ -1,5 +1,5 @@
 set (las_test_include_files
-        include/las-test.h
+        include/las/las-test.h
         include/las/test/mock.h
         include/las/test/token.hpp)
 
@@ -25,7 +25,7 @@ set_target_properties(las-test PROPERTIES
         PUBLIC_HEADER "${las_test_include_files}")
 
 install(TARGETS las-test
-        PUBLIC_HEADER DESTINATION include/las/test)
+        PUBLIC_HEADER DESTINATION include)
 
 if (BUILD_TESTS)
     find_package  (Catch2 CONFIG REQUIRED)

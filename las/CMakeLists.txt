@@ -1,5 +1,5 @@
 set(las_include_files
-        include/las.h
+        include/las/las.h
         include/las/bits.hpp
         include/las/debug.hpp
         include/las/details.hpp
@@ -39,7 +39,7 @@ set_target_properties(las PROPERTIES
         PUBLIC_HEADER "${las_include_files}")
 
 install(TARGETS las
-        PUBLIC_HEADER DESTINATION include/las)
+        PUBLIC_HEADER DESTINATION include)
 
 if (BUILD_TESTS)
     find_package  (Catch2 CONFIG REQUIRED)
