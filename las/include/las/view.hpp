@@ -107,6 +107,16 @@ namespace las {
             {}
 
             template < size_type ARRAY_SIZE >
+            inline constexpr explicit basic_const_view(std::array < value_type, ARRAY_SIZE > & array) :
+                    base_class(array.data(), array.size())
+            {}
+
+            template < size_type ARRAY_SIZE >
+            inline constexpr explicit basic_const_view(std::array < std::decay_t < value_type >, ARRAY_SIZE > const & array) :
+                    base_class(array.data(), array.size())
+            {}
+
+            template < size_type ARRAY_SIZE >
             inline constexpr explicit basic_const_view(value_type(&array)[ARRAY_SIZE]) :
                 base_class(array, ARRAY_SIZE)
             {}
@@ -207,7 +217,6 @@ namespace las {
         using base_class::base_class;
     };
 
-
     /** deduction guides **/
     template < typename value_t >
     view(value_t *, std::size_t) -> view < value_t >;
@@ -223,6 +232,12 @@ namespace las {
 
     template < typename value_t, typename ... others_t >
     view(std::vector < value_t, others_t... > const &) -> view < value_t const >;
+
+    template < typename value_t, std::size_t ARRAY_SIZE >
+    view(std::array < value_t, ARRAY_SIZE >&) -> view < value_t >;
+
+    template < typename value_t, std::size_t ARRAY_SIZE >
+    view(std::array < value_t, ARRAY_SIZE > const &) -> view < value_t const>;
 
     // view utils
     template < typename value_t >

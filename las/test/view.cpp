@@ -133,8 +133,66 @@ namespace las::test {
 				}
 			}
 		}
-	}
 
+        GIVEN("a std::array") {
+            std::size_t const SOURCE_SIZE = 16;
+
+            WHEN("constructing with std::array") {
+                std::array < int, SOURCE_SIZE > buffer;
+                auto victim = view(buffer);
+
+                THEN("view must be properly constructed") {
+                    REQUIRE(victim.data() == buffer.data());
+                    REQUIRE(victim.size() == SOURCE_SIZE);
+                }
+            }
+
+            WHEN("constructing with const std::array") {
+                std::array < int, SOURCE_SIZE > const buffer {0};
+                auto victim = view(buffer);
+
+                THEN("view must be properly constructed") {
+                    REQUIRE(victim.data() == buffer.data());
+                    REQUIRE(victim.size() == SOURCE_SIZE);
+                }
+            }
+        }
+
+        GIVEN("another view") {
+            std::size_t const SOURCE_SIZE = 16;
+            std::array < int, SOURCE_SIZE > buffer;
+
+            WHEN("constructing with view") {
+                auto src_view = view(buffer);
+                auto victim = view(src_view);
+
+                THEN("view must be properly constructed") {
+                    REQUIRE(victim.data() == buffer.data());
+                    REQUIRE(victim.size() == SOURCE_SIZE);
+                }
+            }
+
+            WHEN("constructing with const view") {
+                auto const SRC_VIEW = view (buffer);
+                auto victim = view(SRC_VIEW);
+
+                THEN("view must be properly constructed") {
+                    REQUIRE(victim.data() == buffer.data());
+                    REQUIRE(victim.size() == SOURCE_SIZE);
+                }
+            }
+
+            WHEN("constructing a const view with a non const view") {
+                auto src_view = view(buffer);
+                view < int > const VICTIM (src_view);
+
+                THEN("view must be properly constructed") {
+                    REQUIRE(VICTIM.data() == buffer.data());
+                    REQUIRE(VICTIM.size() == SOURCE_SIZE);
+                }
+            }
+        }
+	}
 
 	SCENARIO("access state", "[view]") {
 

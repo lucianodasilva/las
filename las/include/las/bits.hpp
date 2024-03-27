@@ -90,7 +90,7 @@ namespace las {
                                 value)));
     }
 
-    /// Converts value endianess from the 'native' the 'expected' endianness
+    /// Converts value endianess from the 'native' to the 'expected' endianness
     /// \tparam type_t Value type
     /// \tparam ENDIAN expected endianness
     /// \return Value with bytes ordered as the expected endianness
