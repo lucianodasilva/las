@@ -3,6 +3,7 @@
 #include <las/small_vector.hpp>
 #include <las/test/token.hpp>
 
+#include <random>
 #include <vector>
 
 namespace las::test {

@@ -130,7 +130,7 @@ namespace las::string::test {
         }
     }
 
-    TEST_CASE("String Trim with empty strings ", "[string") {
+    TEST_CASE("String Trim with empty strings ", "[string]") {
         const std::string TEST_STRING{};
 
         SECTION("Left Trim") {

@@ -27,7 +27,8 @@ set_target_properties(las-test PROPERTIES
 install(TARGETS las-test
         PUBLIC_HEADER DESTINATION include/las/test)
 
-if (LAS_UNIT_TEST)
+if (BUILD_TESTS)
+    find_package  (Catch2 CONFIG REQUIRED)
 
     add_executable (las-test-unit
             test/token.cpp)

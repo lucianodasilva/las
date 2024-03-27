@@ -41,16 +41,8 @@ set_target_properties(las PROPERTIES
 install(TARGETS las
         PUBLIC_HEADER DESTINATION include/las)
 
-if (LAS_UNIT_TEST)
-
-    include(FetchContent)
-
-    FetchContent_Declare(
-      Catch2
-      GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-      GIT_TAG        v3.3.2)
-    
-    FetchContent_MakeAvailable(Catch2)
+if (BUILD_TESTS)
+    find_package  (Catch2 CONFIG REQUIRED)
 
     add_executable (las-unit
             test/byte_swap.cpp

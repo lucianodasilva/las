@@ -42,3 +42,6 @@ CMakeUserPresets.json
 *.exe
 *.out
 *.app
+
+#vcpkg
+vcpkg_installed/
