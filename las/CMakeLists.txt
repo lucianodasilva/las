@@ -1,3 +1,5 @@
+
+# project source files
 set(las_include_files
         include/las/las.h
         include/las/bits.hpp
@@ -24,27 +26,48 @@ set(las_source_files
         src/ip_lock.cpp
         src/job.cpp)
 
-add_library (las
+# project build description
+add_library(las
         ${las_include_files}
         ${las_source_files})
 
 target_include_directories(
         las PUBLIC
-        include/)
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include/>)
 
-target_compile_features (
+target_compile_features(
         las PUBLIC cxx_std_17)
 
+# project export
+# read version from vcpkg.json
+vcpkg_manifest_version(las_version)
+
 set_target_properties(las PROPERTIES
+        VERSION ${las_version}
         PUBLIC_HEADER "${las_include_files}")
 
-install(TARGETS las
-        PUBLIC_HEADER DESTINATION include/las)
+target_include_directories(
+        las PUBLIC
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
+write_basic_package_version_file(
+        lasConfigVersion.cmake
+        VERSION ${las_version}
+        COMPATIBILITY ExactVersion)
+
+install(TARGETS las EXPORT las
+        COMPONENT core)
+
+install(EXPORT las
+        NAMESPACE las::
+        DESTINATION lib/cmake/las
+        FILE lasConfig.cmake)
+
+# project tests
 if (BUILD_TESTS)
-    find_package  (Catch2 CONFIG REQUIRED)
+    find_package(Catch2 CONFIG REQUIRED)
 
-    add_executable (las-unit
+    add_executable(las-unit
             test/byte_swap.cpp
             test/dispatcher.cpp
             test/ring_buffer.cpp
@@ -61,10 +84,10 @@ if (BUILD_TESTS)
             Catch2::Catch2
             Catch2::Catch2WithMain)
 
-    if(MSVC)
+    if (MSVC)
         target_link_options(
-                las-unit PUBLIC 
+                las-unit PUBLIC
                 "/ignore:4099")
-    endif()
+    endif ()
 
-endif()
+endif ()
