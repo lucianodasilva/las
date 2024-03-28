@@ -60,7 +60,7 @@ install(TARGETS las EXPORT las
 
 install(EXPORT las
         NAMESPACE las::
-        DESTINATION lib/cmake/las
+        DESTINATION share/las
         FILE lasConfig.cmake)
 
 # project tests

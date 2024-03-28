@@ -43,12 +43,6 @@ write_basic_package_version_file(
 install(TARGETS las-test EXPORT las
         COMPONENT test)
 
-install(EXPORT las
-        NAMESPACE las::
-        DESTINATION lib/cmake/las
-        FILE lasConfig.cmake
-        COMPONENT test)
-
 if (BUILD_TESTS)
     find_package  (Catch2 CONFIG REQUIRED)
 
