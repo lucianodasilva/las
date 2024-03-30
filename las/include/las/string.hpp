@@ -14,8 +14,7 @@
 
 namespace las::string {
 
-    inline void
-    split_into(std::string_view view, std::string_view delimiter, std::vector<std::string_view> &out_vector) {
+    inline void split_into(std::string_view view, std::string_view delimiter, std::vector<std::string_view> &out_vector) {
         std::size_t offset = 0;
 
         while (offset < view.size()) {
@@ -42,7 +41,7 @@ namespace las::string {
     }
 
     template<typename predicate_t>
-    inline std::string_view trim_left(std::string_view view, predicate_t predicate) {
+    std::string_view trim_left(std::string_view view, predicate_t predicate) {
 
         auto char_it = std::find_if_not(
                 view.begin(), view.end(),
@@ -58,7 +57,7 @@ namespace las::string {
     }
 
     template<typename predicate_t>
-    inline std::string_view trim_right(std::string_view view, predicate_t predicate) {
+    std::string_view trim_right(std::string_view view, predicate_t predicate) {
         std::locale const LOC{};
 
         auto char_it = std::find_if_not(
@@ -75,7 +74,7 @@ namespace las::string {
     }
 
     template<typename predicate_t>
-    inline std::string_view trim(std::string_view view, predicate_t predicate) {
+    std::string_view trim(std::string_view view, predicate_t predicate) {
         return trim_left(trim_right(view, predicate), predicate);
     }
 
@@ -106,7 +105,7 @@ namespace las::string {
     }
 
     template<typename num_t>
-    inline std::optional<num_t> as_number(std::string_view value) {
+    std::optional<num_t> as_number(std::string_view value) {
         num_t num{};
 
         if (auto [p, e] = std::from_chars(value.data(), value.data() + value.size(), num);
@@ -155,7 +154,7 @@ namespace las::string {
     }
 
     template<typename ... str_t>
-    inline std::string cat(str_t &&... values) {
+    std::string cat(str_t &&... values) {
         auto len = (string::length(values) + ...);
 
         std::string result;

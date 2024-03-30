@@ -1,12 +1,16 @@
 
 # project source files
 set (las_test_include_files
-        include/las/test/las-test.h
-        include/las/test/mock.h
+        include/las/test/test.h
+        include/las/test/concurrent_stress_tester.hpp
+        include/las/test/mock.hpp
+        include/las/test/random.hpp
         include/las/test/token.hpp)
 
 set (las_test_source_files
-        src/mock.cpp)
+        src/concurrent_stress_tester.cpp
+        src/mock.cpp
+        src/random.cpp)
 
 # project build description
 add_library (las-test
@@ -24,12 +28,15 @@ target_include_directories(
 target_compile_features (
         las-test PUBLIC cxx_std_17)
 
+add_library(las::test ALIAS las-test)
+
 # project export
 vcpkg_manifest_version(las_version)
 
 set_target_properties(las-test PROPERTIES
         VERSION ${las_version}
-        PUBLIC_HEADER "${las_test_include_files}")
+        PUBLIC_HEADER "${las_test_include_files}"
+        EXPORT_NAME test)
 
 target_include_directories(
         las-test PUBLIC
@@ -40,8 +47,7 @@ write_basic_package_version_file(
         VERSION ${las_version}
         COMPATIBILITY ExactVersion)
 
-install(TARGETS las-test EXPORT las
-        COMPONENT test)
+install (TARGETS las-test EXPORT LAS_INSTALL_TARGETS)
 
 if (BUILD_TESTS)
     find_package  (Catch2 CONFIG REQUIRED)

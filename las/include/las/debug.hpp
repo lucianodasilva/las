@@ -2,7 +2,7 @@
 #ifndef LAS_DEBUG_HPP
 #define LAS_DEBUG_HPP
 
-#include "system.hpp"
+#include "config.hpp"
 
 #ifdef NDEBUG // if building in release
 #	define LAS_DEBUG_BREAK() {}
@@ -12,8 +12,8 @@
 #else   // if building in debug
         // and in GNU
 #	if defined (LAS_COMPILER_GCC) || defined (LAS_COMPILER_CLANG)
-#		include <cstddef>
 #		include <csignal>
+#		include <cstddef>
 #		define LAS_DEBUG_BREAK() { std::raise (SIGTRAP); }
         // or in MSCV
 #	elif defined (LAS_COMPILER_MSVC)

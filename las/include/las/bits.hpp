@@ -5,27 +5,27 @@
 #include <cinttypes>
 #include <type_traits>
 
-#include <las/system.hpp>
+#include <las/config.hpp>
 
 namespace las {
 
 #pragma region "POW2 Values"
 
     /// Check if value is a power-of-two
-    /// \tparam num_t Unsigned integer type
+    /// \tparam num_t integer type
     template<typename num_t>
-    constexpr inline bool is_pow_2(num_t num) {
-        static_assert(std::is_unsigned<num_t>::value, "is_pow_2 does not support signed data types!");
+    constexpr bool is_pow_2(num_t num) {
+        static_assert(std::is_unsigned_v<num_t>, "is_pow_2 does not support signed data types!");
         return (num & (num - 1)) == 0;
     }
 
     /// Calculate the next power-of-two of a power-of-two value
-    /// \tparam Unsigned integer type
-    /// \param num Value to check
+    /// \tparam num_t integer type
+    /// \param value Value to check
     /// \return The next pow2 following the value parameter. If the value itself is a pow2, then the same value will be returned.
     template<class num_t>
-    constexpr inline num_t next_pow_2(num_t value) {
-        static_assert(std::is_unsigned<num_t>::value, "next_pow_2 does not support signed data types!");
+    constexpr num_t next_pow_2(num_t value) {
+        static_assert(std::is_unsigned_v<num_t>, "next_pow_2 does not support signed data types!");
 
         if (is_pow_2(value)) {
             return value;
@@ -83,10 +83,10 @@ namespace las {
     /// Swaps the byte order of a integer value
     template < typename type_t >
     inline type_t byte_swap (type_t value) noexcept {
-        static_assert(std::is_integral<type_t>::value, "byte_swap only supports integers!");
+        static_assert(std::is_integral_v<type_t>, "byte_swap only supports integers!");
         return static_cast < type_t > (
                 byte_swap (
-                        static_cast < typename std::make_unsigned < type_t >::type >(
+                        static_cast < std::make_unsigned_t < type_t > >(
                                 value)));
     }
 
@@ -108,22 +108,22 @@ namespace las {
 #pragma region "Bit set/clear and read"
 
     template < typename value_t = uint8_t, typename ... bits_t >
-    inline value_t bitmask(bits_t const ... BITS) noexcept {
+    value_t bitmask(bits_t const ... BITS) noexcept {
         return ((value_t(0x1) << BITS) | ...);
     }
 
     template < typename value_t, typename ... bits_t >
-    inline value_t bit_set(value_t VALUE, bits_t const ... BITS) noexcept {
+    value_t bit_set(value_t const VALUE, bits_t const ... BITS) noexcept {
         return VALUE | bitmask(BITS...);
     }
 
     template < typename value_t, typename ... bits_t >
-    inline value_t bit_clear(value_t VALUE, bits_t const ... BITS) noexcept {
+    value_t bit_clear(value_t const VALUE, bits_t const ... BITS) noexcept {
         return VALUE & ~bitmask(BITS...);
     }
 
     template < typename value_t >
-    inline bool is_bit_set(value_t const VALUE, uint8_t const BIT) noexcept {
+    bool is_bit_set(value_t const VALUE, uint8_t const BIT) noexcept {
         return (VALUE & bitmask(BIT)) != value_t ();
     }
 

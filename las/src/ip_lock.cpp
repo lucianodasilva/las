@@ -1,5 +1,5 @@
 #include "las/ip_lock.hpp"
-#include "las/system.hpp"
+#include "las/config.hpp"
 
 #if defined (LAS_OS_GNU_LINUX)
 

@@ -13,34 +13,33 @@
 namespace las {
 
     /// Represents the life cycle of an event observer.
-    struct event_guard : no_copy {
+    class event_guard final : no_copy {
     public:
-
         class observer_guard_base;
 
         template<typename observer_t>
         class observer_guard;
 
-        /** @brief Disable the scope guard
-         *
-         * Release the reference to the event observer without destroing it
-         */
+        /// Disable the scope guard
+        /// \brief Release the reference to the event observer without destroing it
         void dismiss();
 
-        /** @brief Release observer
-         *
-         * Release the reference to the event observer and destroy it
-         */
+        /// Release observer
+        /// \brief Release the reference to the event observer and destroy it
         void reset();
 
+        /// Default constructor
         event_guard() = default;
 
+        /// Move constructor
         event_guard(event_guard &&other) noexcept;
 
+        /// Construct from observer
         template<typename observer_t>
-        inline explicit event_guard(std::shared_ptr<observer_t> observer) :
+        explicit event_guard(std::shared_ptr<observer_t> observer) :
                 _observer{std::make_unique<observer_guard<observer_t> >(observer)} {};
 
+        /// Move assignment
         event_guard &operator=(event_guard &&other) noexcept;
 
         class observer_guard_base {
@@ -51,7 +50,7 @@ namespace las {
         };
 
         template<typename observer_t>
-        class observer_guard : public observer_guard_base {
+        class observer_guard final : public observer_guard_base {
         public:
 
             void dismiss() override {
@@ -62,9 +61,8 @@ namespace las {
                     weak_observer{observer} {}
 
             ~observer_guard() override {
-                auto observer = weak_observer.lock();
 
-                if (observer) {
+                if (auto observer = weak_observer.lock()) {
                     observer->release();
                     weak_observer.reset();
                 }
@@ -73,7 +71,7 @@ namespace las {
             std::weak_ptr<observer_t> weak_observer;
         };
 
-        inline void swap(event_guard &other) noexcept {
+        void swap(event_guard &other) noexcept {
             std::swap(_observer, other._observer);
         }
 
@@ -82,15 +80,16 @@ namespace las {
     };
 
     template<typename ... args_t>
-    struct event : no_copy {
+    class event final : no_copy {
     public:
 
         using observer_id_t = std::size_t;
 
         class observer_base {
         public:
+            virtual ~observer_base() = default;
 
-            inline explicit observer_base(event &owner_ref, observer_id_t id_v) :
+            explicit observer_base(event &owner_ref, observer_id_t id_v) :
                     owner{owner_ref},
                     ID{id_v} {};
 
@@ -107,9 +106,9 @@ namespace las {
         };
 
         template<typename callback_t>
-        class observer : callback_t, public observer_base {
+        class observer final : callback_t, public observer_base {
         public:
-            inline explicit observer(callback_t callback, event &owner_ref, observer_id_t id) :
+            explicit observer(callback_t callback, event &owner_ref, observer_id_t id) :
                     callback_t(std::move(callback)),
                     observer_base(owner_ref, id) {}
 
@@ -120,11 +119,11 @@ namespace las {
             }
         };
 
-        inline void invoke(args_t ... args) {
+        void invoke(args_t ... args) {
             decltype(_observers) local_observers;
 
             {
-                std::unique_lock<std::mutex> lock(_internal_mutex);
+                std::unique_lock const LOCK (_internal_mutex);
 
                 if (_observers.empty()) {
                     return;
@@ -140,8 +139,8 @@ namespace las {
 
         // WARNING: handle reference types with care, deferred execution of references
         // may lead to access to no longer used memory addresses.
-        inline void invoke(dispatcher &dispatcher, args_t ... args) {
-            std::unique_lock<std::mutex> lock(_internal_mutex);
+        void invoke(dispatcher &dispatcher, args_t ... args) {
+            std::unique_lock const LOCK (_internal_mutex);
 
             dispatcher.enqueue(
                     [](auto local_observers, auto &&... args) -> void {
@@ -156,14 +155,14 @@ namespace las {
 
         template<typename callback_t>
         [[nodiscard]]
-        inline event_guard append(callback_t &&callback) {
+        event_guard append(callback_t &&callback) {
             std::unique_lock<std::mutex> lock(_internal_mutex);
             return append_impl(std::forward<callback_t>(callback));
         }
 
         template<typename callback_t>
-        inline observer_id_t append_no_scope(callback_t &&callback) {
-            std::unique_lock<std::mutex> lock(_internal_mutex);
+        observer_id_t append_no_scope(callback_t &&callback) {
+            std::unique_lock const LOCK (_internal_mutex);
 
             auto guard{append_impl(std::forward<callback_t>(callback))};
             guard.dismiss();
@@ -172,8 +171,8 @@ namespace las {
             return _observer_tick;
         }
 
-        inline bool remove(observer_id_t id) {
-            std::unique_lock<std::mutex> lock(_internal_mutex);
+        bool remove(observer_id_t id) {
+            std::unique_lock const LOCK (_internal_mutex);
 
             auto erase_it = std::remove_if(
                     _observers.begin(), _observers.end(),
@@ -193,7 +192,7 @@ namespace las {
     private:
 
         template<typename callback_t>
-        inline event_guard append_impl(callback_t &&callback) {
+        event_guard append_impl(callback_t &&callback) {
             auto &obs_instance = _observers.emplace_back(
                     std::make_shared<observer<callback_t> >(
                             callback,

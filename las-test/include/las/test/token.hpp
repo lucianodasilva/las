@@ -14,34 +14,34 @@ namespace las::test {
     class token_counters {
     public:
 
-        inline void reset() {
+        void reset() {
             _copies.store(0);
             _moves.store(0);
             _ctors.store(0);
             _dtors.store(0);
         }
 
-        inline void inc_copy () { ++_copies; }
+        void inc_copy () { ++_copies; }
 
-        [[nodiscard]] inline bool check_copies(std::size_t count) const {
+        [[nodiscard]] bool check_copies(std::size_t count) const {
             return _copies.load () == count;
         }
 
-        inline void inc_move () { ++_moves;}
+        void inc_move () { ++_moves;}
 
-        [[nodiscard]] inline bool check_moves(std::size_t count) const {
+        [[nodiscard]] bool check_moves(std::size_t count) const {
             return _moves.load () == count;
         }
 
-        inline void inc_ctor () { ++_ctors; }
+        void inc_ctor () { ++_ctors; }
 
-        [[nodiscard]] inline bool check_ctors(std::size_t count) const {
+        [[nodiscard]] bool check_ctors(std::size_t count) const {
             return _ctors.load () == count;
         }
 
-        inline void inc_dtor() { ++_dtors; }
+        void inc_dtor() { ++_dtors; }
 
-        [[nodiscard]] inline bool check_dtors(std::size_t count) const {
+        [[nodiscard]] bool check_dtors(std::size_t count) const {
             return _dtors.load () == count;
         }
 
@@ -62,7 +62,7 @@ namespace las::test {
         using const_reference = value_type const &;
 
         template < typename ... args_t >
-        inline explicit token(std::shared_ptr < token_counters > counters, args_t && ... args) :
+        explicit token(std::shared_ptr < token_counters > counters, args_t && ... args) :
             _value (std::forward < args_t > (args)...),
             _counters (std::move(counters))
         {
@@ -70,7 +70,7 @@ namespace las::test {
         }
 
         template <typename ... args_t >
-        inline explicit token(args_t && ... args) :
+        explicit token(args_t && ... args) :
             token(
                     std::make_shared < token_counters > (),
                     std::forward < args_t > (args)...)
@@ -80,21 +80,21 @@ namespace las::test {
             this->counters ().inc_dtor ();
         }
 
-        inline token(token && other) noexcept {
+        token(token && other) noexcept {
             operator=(std::forward<token>(other));
         }
 
-        inline token(const token & other) noexcept {
+        token(const token & other) noexcept {
             operator=(other);
         }
 
         // "super specialization" to avoid being caught by
         // the 'a little too universal constructor'
-        inline token(token & other) noexcept :
+        token(token & other) noexcept :
             token (static_cast < token const & > (other))
         {}
 
-        inline token &operator=(const token &other) {
+        token &operator=(const token &other) {
             if (&other == this) {
                 return *this;
             }
@@ -107,7 +107,7 @@ namespace las::test {
             return *this;
         }
 
-        inline token &operator=(token &&other) noexcept {
+        token &operator=(token &&other) noexcept {
             this->swap(other);
 
             // well... both were moved
@@ -117,19 +117,19 @@ namespace las::test {
             return *this;
         }
 
-        inline void swap(token &other) {
+        void swap(token &other) {
             std::swap(this->_counters, other._counters);
             std::swap(this->_value, other._value);
         }
 
         [[nodiscard]]
-        inline token_counters & counters () { return *_counters; }
+        token_counters & counters () { return *_counters; }
 
         [[nodiscard]]
-        inline token_counters const & counters () const { return *_counters; }
+        token_counters const & counters () const { return *_counters; }
 
-        inline reference value () { return _value; }
-        inline const_reference value () const { return _value; }
+        reference value () { return _value; }
+        const_reference value () const { return _value; }
 
     private:
 

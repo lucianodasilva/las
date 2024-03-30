@@ -2,18 +2,21 @@
 # project source files
 set(las_include_files
         include/las/las.h
+        include/las/barrier.hpp
         include/las/bits.hpp
+        include/las/config.hpp
         include/las/debug.hpp
         include/las/details.hpp
         include/las/dispatcher.hpp
         include/las/event.hpp
         include/las/flag.hpp
         include/las/ip_lock.hpp
-        include/las/job.h
+        include/las/job.hpp
         include/las/locked_value.hpp
         include/las/ring_buffer.hpp
         include/las/scope_guards.hpp
         include/las/small_vector.hpp
+        include/las/spin_mutex.hpp
         include/las/string.hpp
         include/las/system.hpp
         include/las/traits.hpp
@@ -21,10 +24,12 @@ set(las_include_files
 
 set(las_source_files
         src/las.cpp
+        src/barrier.cpp
         src/dispatcher.cpp
         src/event.cpp
         src/ip_lock.cpp
-        src/job.cpp)
+        src/job.cpp
+        src/system.cpp)
 
 # project build description
 add_library(las
@@ -37,6 +42,8 @@ target_include_directories(
 
 target_compile_features(
         las PUBLIC cxx_std_17)
+
+add_library(las::las ALIAS las)
 
 # project export
 # read version from vcpkg.json
@@ -55,19 +62,14 @@ write_basic_package_version_file(
         VERSION ${las_version}
         COMPATIBILITY ExactVersion)
 
-install(TARGETS las EXPORT las
-        COMPONENT core)
-
-install(EXPORT las
-        NAMESPACE las::
-        DESTINATION share/las
-        FILE lasConfig.cmake)
+install(TARGETS las EXPORT LAS_INSTALL_TARGETS)
 
 # project tests
 if (BUILD_TESTS)
     find_package(Catch2 CONFIG REQUIRED)
 
     add_executable(las-unit
+            test/barrier.cpp
             test/byte_swap.cpp
             test/dispatcher.cpp
             test/ring_buffer.cpp

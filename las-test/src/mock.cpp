@@ -1,4 +1,4 @@
-#include "las/test/mock.h"
+#include "las/test/mock.hpp"
 
 namespace las::test {
 

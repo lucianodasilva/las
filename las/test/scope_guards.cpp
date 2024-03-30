@@ -1,5 +1,5 @@
 #include <catch2/catch_all.hpp>
-#include <las.h>
+#include <las/las.h>
 
 namespace las::test {
 

@@ -1,15 +1,18 @@
 {
-    "name" : "las",
-    "description" : "Bundle of common tools and idioms",
-    "license": "MIT",
-    "version" : "0.1",
-    "homepage" : "https://github.com/lucianodasilva/las",
-    "features" : {
-        "test" : {
-            "description": "With unit tests",
-            "dependencies": [
-                { "name": "catch2", "host": true }
-            ]
+  "name": "las",
+  "version": "0.1",
+  "description": "Bundle of common tools and idioms",
+  "homepage": "https://github.com/lucianodasilva/las",
+  "license": "MIT",
+  "features": {
+    "test": {
+      "description": "With unit tests",
+      "dependencies": [
+        {
+          "name": "catch2",
+          "host": true
         }
+      ]
     }
+  }
 }

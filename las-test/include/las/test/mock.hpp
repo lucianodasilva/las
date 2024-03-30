@@ -14,6 +14,8 @@ namespace las::test {
 
     class basic_mock {
     public:
+        virtual ~basic_mock() = default;
+
         virtual void reset();
 
         [[nodiscard]]
@@ -42,12 +44,9 @@ namespace las::test {
     template<typename result_t, typename ... args_t>
     class mock<result_t(args_t...)> : public basic_mock {
     public:
-
-        inline explicit mock(mock_container *parent, result_t default_return_value = {});
-
-        inline result_t operator()(args_t &&... args) const;
-
-        inline void reset() override;
+        explicit mock(mock_container *parent, result_t default_return_value = {});
+        result_t operator()(args_t &&... args) const;
+        void reset() override;
 
         mutable std::function<result_t(args_t ...)> function;
         mutable result_t                            return_value;
@@ -59,23 +58,18 @@ namespace las::test {
     template<typename ... args_t>
     class mock<void(args_t...)> : public basic_mock {
     public:
-        inline explicit mock(mock_container *parent);
-
-        inline void operator()(args_t &&... args) const;
-
-        inline void reset() override;
+        explicit mock(mock_container *parent);
+        void operator()(args_t &&... args) const;
+        void reset() override;
 
         mutable std::function<void(args_t ...)> function;
     };
 
     template<>
-    struct mock<void()> : public basic_mock {
+    class mock<void()> : public basic_mock {
     public:
-
         inline explicit mock(mock_container *parent);
-
         inline void operator()() const;
-
         inline void reset() override;
 
         mutable std::function<void()> function;
@@ -83,6 +77,7 @@ namespace las::test {
 
     class mock_container {
     public:
+        virtual ~mock_container () = default;
 
         void attach(basic_mock &call_log_ref);
 

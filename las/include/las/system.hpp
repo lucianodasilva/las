@@ -2,115 +2,167 @@
 #ifndef LAS_SYSTEM_HPP
 #define LAS_SYSTEM_HPP
 
-// Detect operating system
-#if defined (__linux__) && !defined(__ANDROID__)
-#	define LAS_OS_GNU_LINUX 1
-#elif defined (__ANDROID__)
-#	define LAS_OS_ANDROID 1
-#elif defined (__APPLE__)
-#	define LAS_OS_DARWIN 1
-#elif defined (_WIN32)
-#	define LAS_OS_WINDOWS 1
+#include <cstdint>
+#include <filesystem>
+#include <limits>
+#include <optional>
+#include <thread>
+#include <vector>
+
+#include <las/config.hpp>
+
+#if defined (LAS_OS_GNU_LINUX)
+#   include <unistd.h>
+#   include <linux/futex.h>
+#   include <sys/syscall.h>
 #endif
 
-// Detect compiler
-#if defined (__GNUC__)
-#	define LAS_COMPILER_GCC 1
-#elif defined (_MSC_VER)
-#	define LAS_COMPILER_MSVC 1
-#elif defined (__clang__)
-#	define LAS_COMPILER_CLANG 1
-#endif
-
-// Detect architecture
-#if defined (__x86_64__) || defined (_M_X64)
-#	define LAS_ARCH_X64 1
-#elif defined (__i386) || defined (_M_IX86)
-#	define LAS_ARCH_X86 1
-#elif defined (__arm__) || defined (_M_ARM)
-#	define LAS_ARCH_ARM 1
-#elif defined (__aarch64__) || defined (_M_ARM64)
-#	define LAS_ARCH_ARM64 1
-#endif
-
-// Detect endianness
-#if defined (__BYTE_ORDER__) && defined (__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#       define LAS_LITTLE_ENDIAN 1
-#elif  defined (__BYTE_ORDER__) && defined (__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#       define LAS_BIG_ENDIAN 1
-#elif defined (LAS_OS_WINDOWS)
-#       define LAS_LITTLE_ENDIAN 1
+#if defined (LAS_OS_WINDOWS)
+#   define WIN32_LEAN_AND_MEAN
+#   define NOMINMAX
+#   include <windows.h>
 #endif
 
 namespace las {
 
-    enum struct os {
-        unknown = 0,
-        windows,
-        gnu_linux,
-        android,
-        darwin,
+    /// Futex value type
+    using futex_value_t = int32_t;
+
+    /// Futex wait result type
+    enum struct futex_wait_result : uint8_t {
+        awake = 0,      ///< futex was woke up, may also a spurious wake up
+        unmatched,      ///< futex value did not match the expected value
+        timeout,        ///< futex wait timed out
+        interrupted,    ///< futex wait was interrupted by a signal
+        error           ///< futex wait call resulted in an error
+    };
+
+    /// Futex wait on address
+    /// \param address address to wait on
+    /// \param expected_value expected value
+    /// \param TIMEOUT timeout for the wait. If zero, the wait is indefinite
+    /// \return true if the futex was woken up, false otherwise
+    inline futex_wait_result futex_wait (futex_value_t * address, futex_value_t expected_value, std::chrono::milliseconds TIMEOUT = std::chrono::milliseconds::zero()) noexcept;
+
+    /// Futex wake all threads waiting on the address
+    /// \param address address to wake up
+    inline void futex_wake_all (futex_value_t * address) noexcept;
+
+    /// Futex wake one thread waiting on the address
+    /// \param address address to wake up
+    inline void futex_wake_one (futex_value_t * address) noexcept;
+
+    /// CPU core id type
+    using core_id_t = std::size_t;
+
+    /// CPU core id for undefined core
+    constexpr auto UNDEFINED_CORE_ID = std::numeric_limits< core_id_t >::max();
+
+    /// Get the number and estimated ids for the available pyhsical cpu cores
+    /// \return vector of core id
+    std::vector < core_id_t > physical_cores ();
+
+    /// Get the native handle for the calling thread
+    inline std::thread::native_handle_type this_thread_native_handle ();
+
+    /// Set the affinity of the thread to the specified core
+    inline void thread_affinity_set (std::thread & thread, core_id_t core_id);
+
+    /// Set the affinity of the calling thread to the specified core
+    inline void this_thread_affinity_set (core_id_t core_id);
+
+    /// Read the content of a file into a string
+    /// \param file path to the file
+    /// \return optional string with the file content
+    std::optional < std::string > file_content (std::filesystem::path const & file);
+
 #if defined (LAS_OS_GNU_LINUX)
-        native = gnu_linux,
-#elif defined (LAS_OS_ANDROID)
-        native = android,
-#elif defined (LAS_OS_DARWIN)
-        native = darwin,
-#elif defined (LAS_OS_WINDOWS)
-        native = windows,
-#else
-        native = unknown,
-#endif
-    };
 
-    enum struct compiler {
-        unknown = 0,
-        gcc,
-        msvc,
-        clang,
-#if defined (LAS_COMPILER_GCC)
-        native = gcc,
-#elif defined (LAS_COMPILER_MSVC)
-        native = msvc,
-#elif defined (LAS_COMPILER_CLANG)
-        native = clang,
-#else
-        native = unknown
-#endif
-    };
+    inline futex_wait_result futex_wait (futex_value_t * address, futex_value_t expected_value, std::chrono::milliseconds const TIMEOUT) noexcept {
+        using namespace std::chrono;
 
-    enum struct arch {
-        unknown = 0,
-        x86,
-        x64,
-        arm,
-        arm64,
-#if defined (LAS_ARCH_X86)
-        native = x86,
-#elif defined (LAS_ARCH_X64)
-        native = x64,
-#elif defined (LAS_ARCH_ARM)
-        native = arm,
-#elif defined (LAS_ARCH_ARM64)
-        native = arm64
-#else
-        native = unknown
-#endif
-    };
+        // convert the timeout to a timespec
+        auto const SEC = duration_cast < seconds > (TIMEOUT);
+        auto const NSEC = duration_cast < nanoseconds > (TIMEOUT - SEC);
 
-    enum struct endian {
-        unknown = 0,
-        big,
-        little,
-#if defined (LAS_BIG_ENDIAN)
-        native = big,
-#elif defined (LAS_LITTLE_ENDIAN)
-        native = little,
-#else
-        native = unknown,
+        struct timespec ts { SEC.count(), NSEC.count () };
+        auto * ts_ptr = (TIMEOUT == milliseconds::zero () ? nullptr : &ts);
+
+        // wait on the futex
+        auto const res = syscall (SYS_futex, address, FUTEX_WAIT_PRIVATE, expected_value, ts_ptr, nullptr, 0); // NOLINT - either syscall or inline assembly
+
+        // check the result
+        if (res == 0) { return futex_wait_result::awake; }
+
+        // check for errors
+        switch (errno) {
+            case ETIMEDOUT:
+                return futex_wait_result::timeout;
+            case EINTR:
+                return futex_wait_result::interrupted;
+            case EAGAIN:
+                return futex_wait_result::unmatched;
+            default:
+                return futex_wait_result::error;
+        }
+    }
+
+    inline void futex_wake_all (futex_value_t * address) noexcept {
+        syscall (SYS_futex, address, FUTEX_WAKE_PRIVATE, std::numeric_limits< futex_value_t >::max(), nullptr, nullptr, 0); // NOLINT - either syscall or inline assembly
+    }
+
+    inline void futex_wake_one (futex_value_t * address) noexcept {
+        syscall (SYS_futex, address, FUTEX_WAKE_PRIVATE, 1, nullptr, nullptr, 0); // NOLINT - either syscall or inline assembly
+    }
+
+    inline std::thread::native_handle_type this_thread_native_handle () {
+        return pthread_self();
+    }
+
+    inline void thread_affinity_set (std::thread & thread, core_id_t core_id) {
+        cpu_set_t cpuset;
+        CPU_ZERO (&cpuset);
+        CPU_SET (core_id, &cpuset);
+        pthread_setaffinity_np (thread.native_handle(), sizeof (cpu_set_t), &cpuset);
+    }
+
+    inline void this_thread_affinity_set (core_id_t core_id) {
+        cpu_set_t cpuset;
+        CPU_ZERO (&cpuset);
+        CPU_SET (core_id, &cpuset);
+        pthread_setaffinity_np (this_thread_native_handle (), sizeof (cpu_set_t), &cpuset);
+    }
+
 #endif
-    };
+
+#if defined (LAS_OS_WINDOWS)
+    inline bool futex_wait (futex_value_t * address, futex_value_t expected_value) noexcept {
+        return WaitOnAddress (address, expected_value, INFINITE) == TRUE;
+    }
+
+    inline void futex_wake_all (futex_value_t * address) noexcept {
+        WakeByAddressAll (address);
+    }
+
+    inline void futex_wake_one (futex_value_t * address) noexcept {
+        WakeByAddressSingle (address);
+    }
+
+    inline std::thread::native_handle_type this_thread_native_handle () {
+        return GetCurrentThread ();
+    }
+
+    inline void thread_affinity_set (std::thread & thread, core_id_t core_id) {
+        SetThreadAffinityMask (thread.native_handle(), DWORD_PTR(1 << core_id));
+    }
+
+    inline void this_thread_affinity_set (core_id_t core_id) {
+        SetThreadAffinityMask (this_thread_native_handle(), DWORD_PTR(1 << core_id));
+    }
+#endif
+
+
 
 }
 
-#endif //LAS_SYSTEM_HPP
+#endif // LAS_SYSTEM_HPP
