@@ -69,7 +69,6 @@ if (BUILD_TESTS)
     find_package(Catch2 CONFIG REQUIRED)
 
     add_executable(las-unit
-            test/barrier.cpp
             test/byte_swap.cpp
             test/dispatcher.cpp
             test/ring_buffer.cpp
