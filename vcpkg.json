@@ -1,9 +1,15 @@
 {
   "name": "las",
-  "version": "0.1",
+  "version": "0.2",
   "description": "Bundle of common tools and idioms",
   "homepage": "https://github.com/lucianodasilva/las",
   "license": "MIT",
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    }
+  ],
   "features": {
     "test": {
       "description": "With unit tests",
