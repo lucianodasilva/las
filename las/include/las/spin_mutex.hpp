@@ -17,11 +17,9 @@ namespace las {
                 if (!_lock.exchange(true, std::memory_order_acquire)) {
                     return;
                 }
+
                 // Wait for lock to be released without generating cache misses
                 while (_lock.load(std::memory_order_relaxed)) {
-                    // Issue X86 PAUSE or ARM YIELD instruction to reduce contention between
-                    // hyper-threads
-
                     _mm_pause();
                 }
             }
