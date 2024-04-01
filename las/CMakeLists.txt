@@ -1,5 +1,5 @@
 
-# project source files
+#region project source files
 set(las_include_files
         include/las/las.h
         include/las/barrier.hpp
@@ -30,8 +30,9 @@ set(las_source_files
         src/ip_lock.cpp
         src/job.cpp
         src/system.cpp)
+#endregion
 
-# project build description
+#region project build description
 add_library(las
         ${las_include_files}
         ${las_source_files})
@@ -44,27 +45,21 @@ target_compile_features(
         las PUBLIC cxx_std_17)
 
 add_library(las::las ALIAS las)
+#endregion
 
-# project export
-# read version from vcpkg.json
-vcpkg_manifest_version(las_version)
-
+#region project export
 set_target_properties(las PROPERTIES
-        VERSION ${las_version}
-        PUBLIC_HEADER "${las_include_files}")
+        VERSION ${LAS_VERSION})
 
 target_include_directories(
         las PUBLIC
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-
-write_basic_package_version_file(
-        lasConfigVersion.cmake
-        VERSION ${las_version}
-        COMPATIBILITY ExactVersion)
+        $<INSTALL_INTERFACE:include/>)
 
 install(TARGETS las EXPORT LAS_INSTALL_TARGETS)
+install(DIRECTORY include/ DESTINATION include/)
+#endregion
 
-# project tests
+#region project tests
 if (BUILD_TESTS)
     find_package(Catch2 CONFIG REQUIRED)
 
@@ -92,3 +87,4 @@ if (BUILD_TESTS)
     endif ()
 
 endif ()
+#endregion
