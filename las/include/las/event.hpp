@@ -7,6 +7,7 @@
 #include <las/traits.hpp>
 
 #include <atomic>
+#include <algorithm>
 #include <memory>
 #include <mutex>
 
