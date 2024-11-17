@@ -21,7 +21,7 @@ namespace las::test {
     char const LARGE_ARRAY[] = {'v', 'i', 'e', 'w', '_', 'l', 'a', 'r', 'g', 'e', 'r', '_', 't', 'h', 'a', 'n', '_',
                                 't', 'e', 's', 't', '_', 'v', 'i', 'e', 'w'};
 
-    TEST_CASE ("Begins with", "[view]") {
+    TEST_CASE ("View begins with", "[view]") {
         auto const TEST_VIEW = las::view(TEST_ARRAY);
         auto const BEGIN_VIEW = las::view(BEGIN_ARRAY);
         auto const MIDDLE_VIEW = las::view(MIDDLE_ARRAY);
@@ -49,7 +49,7 @@ namespace las::test {
         }
     }
 
-    TEST_CASE ("Ends with", "[view]") {
+    TEST_CASE ("View ends with", "[view]") {
         auto const TEST_VIEW = las::view(TEST_ARRAY);
         auto const END_VIEW = las::view(END_ARRAY);
         auto const MIDDLE_VIEW = las::view(MIDDLE_ARRAY);
@@ -77,7 +77,7 @@ namespace las::test {
         }
     }
 
-    TEST_CASE ("contains", "[view]") {
+    TEST_CASE ("View contains", "[view]") {
         auto const TEST_VIEW = las::view(TEST_ARRAY);
         auto const BEGIN_VIEW = las::view(BEGIN_ARRAY);
         auto const MIDDLE_VIEW = las::view(MIDDLE_ARRAY);

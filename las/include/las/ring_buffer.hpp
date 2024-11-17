@@ -11,12 +11,12 @@
 
 namespace las {
 
-    template<class num_t, typename alloc_t = std::allocator<num_t> >
+    template<class value_t, typename alloc_t = std::allocator<value_t> >
     struct ring_buffer {
     private:
 
         using alloc_traits = std::allocator_traits<alloc_t>;
-        using alloc_rebind_t = typename alloc_traits::template rebind_alloc<num_t>;
+        using alloc_rebind_t = typename alloc_traits::template rebind_alloc<value_t>;
 
     public:
 
@@ -36,48 +36,48 @@ namespace las {
             using pointer = ring_buffer::pointer;
             using reference = ring_buffer::reference;
 
-            inline iterator(ring_buffer &inst, std::size_t index) :
+            iterator(ring_buffer &inst, std::size_t index) :
                     _inst(inst),
                     _index(index) {}
 
-            inline iterator &operator=(iterator const &other) {
+            iterator &operator=(iterator const &other) {
                 // TODO: check and report for different ring_buffer references
                 this->_index = other._index;
                 return *this;
             }
 
-            inline iterator &operator++() {
+            iterator &operator++() {
                 ++_index;
                 return *this;
             }
 
-            inline iterator const &operator++() const {
+            iterator const &operator++() const {
                 ++_index;
                 return *this;
             }
 
-            inline iterator operator+(std::size_t offset) const noexcept {
+            iterator operator+(std::size_t offset) const noexcept {
                 return {_inst, _index + offset};
             }
 
-            inline std::ptrdiff_t operator-(iterator const &other) const noexcept {
+            std::ptrdiff_t operator-(iterator const &other) const noexcept {
                 return _index - other._index;
             }
 
-            inline bool operator==(iterator const &it) const {
+            bool operator==(iterator const &it) const {
                 return !(operator!=(it));
             }
 
-            inline bool operator!=(iterator const &it) const {
+            bool operator!=(iterator const &it) const {
                 return !(&it._inst == &_inst && it._index == _index);
             }
 
-            inline reference operator*() {
-                return *_inst.at(_index);
+            reference operator*() {
+                return *_inst.ptr_to(_index);
             }
 
-            inline const_reference operator*() const {
-                return *_inst.at(_index);
+            const_reference operator*() const {
+                return *_inst.ptr_to(_index);
             }
 
         private:
@@ -93,28 +93,28 @@ namespace las {
 
         ring_buffer() = default;
 
-        inline explicit ring_buffer(alloc_t const &alloc) :
-                buffer_impl_t(alloc) {}
+        explicit ring_buffer(alloc_t const &alloc) :
+                _impl(alloc) {}
 
-        inline ring_buffer(ring_buffer const &origin) {
+        ring_buffer(ring_buffer const &origin) {
             copy_from(origin);
         }
 
-        inline ring_buffer(ring_buffer const &origin, alloc_t const &alloc) :
-                buffer_impl_t(alloc) {
+        ring_buffer(ring_buffer const &origin, alloc_t const &alloc) :
+                _impl(alloc) {
             copy_from(origin);
         }
 
-        inline ring_buffer(ring_buffer &&origin) noexcept {
+        ring_buffer(ring_buffer &&origin) noexcept {
             this->swap(origin);
         }
 
-        inline ring_buffer(ring_buffer &&origin, alloc_t const &alloc) :
+        ring_buffer(ring_buffer &&origin, alloc_t const &alloc) :
                 _impl{alloc} {
             this->swap(origin);
         }
 
-        inline ring_buffer &operator=(ring_buffer const &origin) {
+        ring_buffer &operator=(ring_buffer const &origin) {
             if (&origin != this) {
                 copy_from(origin);
             }
@@ -122,19 +122,19 @@ namespace las {
             return *this;
         }
 
-        inline ring_buffer &operator=(ring_buffer &&origin) noexcept {
+        ring_buffer &operator=(ring_buffer &&origin) noexcept {
             this->swap(origin);
             return *this;
         }
 
-        inline void swap(ring_buffer &other) {
+        void swap(ring_buffer &other)  noexcept {
             std::swap(_index_begin, other._index_begin);
             std::swap(_index_end, other._index_end);
 
             std::swap(_impl, other._impl);
         }
 
-        inline void clear() {
+        void clear() {
             range_destroy();
 
             _impl.self_deallocate();
@@ -142,70 +142,70 @@ namespace las {
             _index_end = 0;
         }
 
-        inline void reserve(std::size_t n) {
+        void reserve(std::size_t n) {
             grow(next_pow_2(n));
         }
 
-        [[nodiscard]] inline bool empty() const noexcept {
+        [[nodiscard]] bool empty() const noexcept {
             return _index_begin == _index_end;
         }
 
-        [[nodiscard]] inline size_type size() const noexcept {
+        [[nodiscard]] size_type size() const noexcept {
             return _index_end - _index_begin;
         }
 
-        inline iterator begin() {
+        iterator begin() {
             return iterator(*this, 0);
         }
 
-        inline iterator end() {
+        iterator end() {
             return iterator(*this, size());
         }
 
-        inline reference front() noexcept {
-            return *at(0);
+        reference front() noexcept {
+            return *ptr_to(0);
         }
 
-        inline const_reference front() const noexcept {
-            return *at(0);
+        const_reference front() const noexcept {
+            return *ptr_to(0);
         }
 
-        inline reference back() noexcept {
-            return *at(size() - 1);
+        reference back() noexcept {
+            return *ptr_to(size() - 1);
         }
 
-        inline const_reference back() const noexcept {
-            return *at(size() - 1);
+        const_reference back() const noexcept {
+            return *ptr_to(size() - 1);
         }
 
-        inline void push_back(const_reference value) {
+        void push_back(const_reference value) {
             emplace_back(value);
         }
 
-        inline void push_back(value_type &&value) {
+        void push_back(value_type &&value) {
             emplace_back(std::forward<value_type>(value));
         }
 
         template<typename ... args_t>
-        inline void emplace_back(args_t &&... args) {
+        void emplace_back(args_t &&... args) {
             if (is_full()) {
                 grow();
             }
 
-            alloc_traits::construct(_impl, at(size()), std::forward<args_t>(args)...);
+            alloc_traits::construct(_impl, ptr_to(size()), std::forward<args_t>(args)...);
             ++_index_end;
         }
 
-        inline void push_front(const_reference value) {
+        void push_front(const_reference value) {
             emplace_front(value);
         }
 
-        inline void push_front(value_type &&value) {
+        void push_front(value_type &&value) {
             emplace_front(std::forward<value_type>(value));
         }
 
         template<typename ... args_t>
-        inline void emplace_front(args_t &&... args) {
+        void emplace_front(args_t &&... args) {
             if (is_full()) {
                 grow();
             }
@@ -220,11 +220,11 @@ namespace las {
 
             --_index_begin;
 
-            alloc_traits::construct(_impl, at(0), std::forward<args_t>(args)...);
+            alloc_traits::construct(_impl, ptr_to(0), std::forward<args_t>(args)...);
         }
 
         template<typename input_iterator_t>
-        inline void append(input_iterator_t begin_it, input_iterator_t end_it) {
+        void append(input_iterator_t begin_it, input_iterator_t end_it) {
 
             // TODO: naive implementation, please reimplement
             for (auto it = begin_it; it != end_it; ++it) {
@@ -232,11 +232,11 @@ namespace las {
             }
         }
 
-        inline void pop_front() {
+        void pop_front() {
             if (empty()) { return; }
 
             // if !pointer inplace destroy
-            if (!std::is_pointer<num_t>()) {
+            if (!std::is_pointer<value_t>()) {
                 alloc_traits::destroy(_impl, &front());
             }
 
@@ -244,11 +244,11 @@ namespace las {
             ++_index_begin;
         }
 
-        inline void pop_back() {
+        void pop_back() {
             if (empty()) { return; }
 
             // if !pointer inplace destroy
-            if (!std::is_pointer<num_t>()) {
+            if (!std::is_pointer<value_t>()) {
                 alloc_traits::destroy(_impl, &back());
             }
 
@@ -256,7 +256,7 @@ namespace las {
             --_index_end;
         }
 
-        inline void pop_front_n(std::size_t n) {
+        void pop_front_n(std::size_t n) {
             // TODO: naive implementation, please reimplement
             n = std::min(size(), n);
 
@@ -269,7 +269,7 @@ namespace las {
             }
         }
 
-        inline void pop_back_n(std::size_t n) {
+        void pop_back_n(std::size_t n) {
             // TODO: naive implementation, please reimplement
             n = std::min(size(), n);
 
@@ -284,35 +284,35 @@ namespace las {
 
     private:
 
-        [[nodiscard]] inline bool is_full() const noexcept {
+        [[nodiscard]] bool is_full() const noexcept {
             return size() == _impl.capacity();
         }
 
-        [[nodiscard]] inline std::ptrdiff_t transpose_index(std::ptrdiff_t index, std::ptrdiff_t offset = 0) const noexcept {
+        [[nodiscard]] std::ptrdiff_t transpose_index(std::ptrdiff_t index, std::ptrdiff_t offset = 0) const noexcept {
             return ((index + offset) & _impl.index_mask);
         }
 
-        inline pointer at(std::ptrdiff_t index) {
+        pointer ptr_to(std::ptrdiff_t index) {
             return _impl.ptr_begin + transpose_index(_index_begin, index);
         }
 
-        inline const_pointer at(std::ptrdiff_t index) const {
+        const_pointer ptr_to(std::ptrdiff_t index) const {
             return _impl.ptr_begin + transpose_index(_index_begin, index);
         }
 
-        inline void grow(size_type n) {
+        void grow(size_type n) {
             if (n < _impl.capacity()) {
                 return;
             }
 
-            if (n < DEFAULT_MINIMUM_CAPACITY) {
-                n = DEFAULT_MINIMUM_CAPACITY;
+            if (n < default_minimum_capacity) {
+                n = default_minimum_capacity;
             }
 
             auto new_begin = _impl.allocate(n);
             auto data_size = size();
 
-            if (std::is_trivially_copyable < value_type >::value) {
+            if (std::is_trivially_copyable_v < value_type >) {
                 range_copy(new_begin);
                 range_destroy();
             } else {
@@ -326,11 +326,11 @@ namespace las {
             _index_end = data_size;
         }
 
-        inline void grow() {
+        void grow() {
             grow(next_pow_2(_impl.capacity() + 1));
         }
 
-        inline void copy_from(ring_buffer const &origin) {
+        void copy_from(ring_buffer const &origin) {
             // destroy current data
             range_destroy();
 
@@ -346,7 +346,7 @@ namespace las {
             _index_end = origin.size();
         }
 
-        inline void range_destroy() {
+        void range_destroy() {
             range_apply(
                     [alloc_impl = &_impl](pointer begin_ptr, pointer end_ptr, std::ptrdiff_t) {
                         for (pointer it = begin_ptr; it != end_ptr; ++it) {
@@ -356,7 +356,7 @@ namespace las {
                     this);
         }
 
-        inline void range_copy(pointer dest) const {
+        void range_copy(pointer dest) const {
             range_apply(
                     [dest](const_pointer begin_ptr, const_pointer end_ptr, std::ptrdiff_t offset) {
                         std::uninitialized_copy(begin_ptr, end_ptr, dest + offset);
@@ -364,28 +364,28 @@ namespace las {
                     this);
         }
 
-        inline void range_move(pointer dest) {
+        void range_move(pointer dest) {
             range_apply(
                     [dest](pointer begin_ptr, pointer end_ptr, std::ptrdiff_t offset) {
                         // TODO: use when compiler updated
-                        // std::uninitialized_move(b, e, dest + offset);
-                        auto dst_ptr = dest + offset;
-
-                        for (; begin_ptr != end_ptr; ++begin_ptr, ++dst_ptr) {
-                            ::new(dst_ptr) num_t(std::move(*begin_ptr));
-                        }
+                        std::uninitialized_move(begin_ptr, end_ptr, dest + offset);
+//                        auto dst_ptr = dest + offset;
+//
+//                        for (; begin_ptr != end_ptr; ++begin_ptr, ++dst_ptr) {
+//                            ::new(dst_ptr) value_t(std::move(*begin_ptr));
+//                        }
                     },
                     this);
         }
 
         template<typename func_t, typename inst_t>
-        inline static void range_apply(func_t func, inst_t *inst) {
+        static void range_apply(func_t func, inst_t *inst) {
             if (inst->empty()) {
                 return;
             }
 
-            auto *begin_ptr = inst->at(0);
-            auto *end_ptr = inst->at(inst->size());
+            auto *begin_ptr = inst->ptr_to(0);
+            auto *end_ptr = inst->ptr_to(inst->size());
 
             if (end_ptr > begin_ptr) {
                 // linear call
@@ -397,8 +397,7 @@ namespace las {
             }
         }
 
-        struct buffer_impl_t : public alloc_rebind_t {
-        public:
+        struct buffer_impl_t : alloc_rebind_t {
 
             buffer_impl_t() = default;
 
@@ -412,24 +411,24 @@ namespace las {
             ) :
                     alloc_rebind_t(std::move(origin)) {}
 
-            inline void swap(buffer_impl_t &other) {
+            void swap(buffer_impl_t &other)  noexcept {
                 std::swap(ptr_begin, other.ptr_begin);
                 std::swap(ptr_capacity, other.ptr_capacity);
             }
 
-            inline void set(
-                    typename ring_buffer::pointer begin,
+            void set(
+                    pointer begin,
                     size_type cap) {
                 ptr_begin = begin;
                 ptr_capacity = ptr_begin + cap;
                 index_mask = cap - 1;
             }
 
-            inline void self_allocate(std::size_t n) {
+            void self_allocate(std::size_t n) {
                 set(alloc_rebind_t::allocate(n), n);
             }
 
-            inline void self_deallocate() {
+            void self_deallocate() {
                 alloc_rebind_t::deallocate(
                         ptr_begin, ptr_capacity - ptr_begin
                 );
@@ -437,11 +436,11 @@ namespace las {
                 set(nullptr, 0);
             }
 
-            inline typename ring_buffer::size_type capacity() const noexcept {
+            [[nodiscard]] size_type capacity() const noexcept {
                 return ptr_capacity - ptr_begin;
             }
 
-            typename ring_buffer::pointer
+            pointer
                     ptr_begin{nullptr},
                     ptr_capacity{nullptr};
 
@@ -456,14 +455,14 @@ namespace las {
                 _index_begin{0},
                 _index_end{0};
 
-        static std::size_t constexpr DEFAULT_MINIMUM_CAPACITY = 8;
+        static std::size_t constexpr default_minimum_capacity = 8;
     };
 
-    template<typename num_t, typename alloc_t = std::allocator<num_t> >
-    using queue = std::queue<num_t, ring_buffer<num_t, alloc_t> >;
+    template<typename value_t, typename alloc_t = std::allocator<value_t> >
+    using queue = std::queue<value_t, ring_buffer<value_t, alloc_t> >;
 
-    template<typename num_t, typename alloc_t = std::allocator<num_t> >
-    using stack = std::stack<num_t, ring_buffer<num_t, alloc_t> >;
+    template<typename value_t, typename alloc_t = std::allocator<value_t> >
+    using stack = std::stack<value_t, ring_buffer<value_t, alloc_t> >;
 
 }
 #endif

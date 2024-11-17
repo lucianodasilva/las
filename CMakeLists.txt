@@ -4,17 +4,23 @@ cmake_policy(SET CMP0054 NEW)
 include(cmake/tools.cmake)
 include(CMakePackageConfigHelpers)
 
+option(BUILD_GRAPHICS "Build graphics library" OFF)
 option(BUILD_TESTS "Build tests" OFF)
 
 if (BUILD_TESTS)
     list(APPEND VCPKG_MANIFEST_FEATURES "test")
-endif ()
+endif()
+
+if (BUILD_GRAPHICS)
+    list(APPEND VCPKG_MANIFEST_FEATURES "graphics")
+endif()
 
 vcpkg_manifest_version(LAS_VERSION)
 
 project(las CXX)
 
 add_subdirectory(las)
+add_subdirectory(las-graphics)
 add_subdirectory(las-test)
 
 #region export targets
@@ -31,3 +37,4 @@ install(EXPORT LAS_INSTALL_TARGETS
         NAMESPACE las::
         DESTINATION share/las
         FILE lasConfig.cmake)
+#endregion

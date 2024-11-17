@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "bits.hpp"
+#include "static_storage.hpp"
 
 namespace las {
 
@@ -14,36 +15,6 @@ namespace las {
 
         template<class type_t>
         using is_iterator = std::negation<std::is_integral<type_t> >;
-
-        template<class type_t, size_t SIZE>
-        struct static_storage {
-
-            alignas(next_pow_2(sizeof(type_t))) uint8_t data[sizeof(type_t) * SIZE];
-
-            inline type_t &operator[](size_t index) {
-                return *reinterpret_cast <type_t *> (data + (index * sizeof(type_t)));
-            }
-
-            inline type_t const &operator[](size_t index) const {
-                return *reinterpret_cast <type_t const *> (data + (index * sizeof(type_t)));
-            }
-
-            inline const type_t *begin() const noexcept {
-                return reinterpret_cast <const type_t *> (+data);
-            };
-
-            inline type_t *begin() noexcept {
-                return reinterpret_cast <type_t *> (+data);
-            };
-
-            inline type_t *end() noexcept {
-                return begin() + SIZE;
-            }
-
-            inline const type_t *end() const noexcept {
-                return begin() + SIZE;
-            }
-        };
 
     }
 
@@ -716,7 +687,7 @@ namespace las {
 
         vector_impl_t _impl;
 
-        details::static_storage<type_t, 1> _small;
+        static_storage<type_t, 1> _small;
         // reserved: do not define any variables after _first
     };
 
@@ -786,7 +757,7 @@ namespace las {
         }
 
     private:
-        details::static_storage<type_t, CAPACITY - 1> _small_data;
+        static_storage<type_t, CAPACITY - 1> _small_data;
     };
 
 }

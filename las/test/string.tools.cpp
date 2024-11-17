@@ -268,7 +268,7 @@ namespace las::string::test {
         }
     }
 
-    TEMPLATE_TEST_CASE ("As Number", "[string]", int, float, double) {
+    TEMPLATE_TEST_CASE ("String as number", "[string]", int, float, double) {
         std::string const VALID_INTEGER_STRING{"123"};
         std::string const VALID_FLOAT_STRING{"456.7"};
         std::string const INVALID_STRING{"not-a-number"};
@@ -304,7 +304,7 @@ namespace las::string::test {
         }
     }
 
-    TEST_CASE ("Cat", "[string]") {
+    TEST_CASE ("String Cat", "[string]") {
 
         std::string const EXPECTANCY_VALID{"String Under Test"};
 
@@ -325,7 +325,7 @@ namespace las::string::test {
         }
     }
 
-    TEST_CASE ("Begins with", "[string]") {
+    TEST_CASE ("String begins with", "[string]") {
         std::string const TEST_STRING{"string_under_test"};
         std::string const BEGIN_TOKEN{"string"};
         std::string const MIDDLE_TOKEN{"under"};
@@ -353,7 +353,7 @@ namespace las::string::test {
         }
     }
 
-    TEST_CASE ("Ends with", "[string]") {
+    TEST_CASE ("String ends with", "[string]") {
         std::string const TEST_STRING{"string_under_test"};
         std::string const BEGIN_TOKEN{"test"};
         std::string const MIDDLE_TOKEN{"under"};
@@ -381,7 +381,7 @@ namespace las::string::test {
         }
     }
 
-    TEST_CASE ("contains", "[string]") {
+    TEST_CASE ("String contains", "[string]") {
         std::string const TEST_STRING{"string_under_test"};
         std::string const BEGIN_TOKEN{"string"};
         std::string const MIDDLE_TOKEN{"under"};
@@ -420,7 +420,7 @@ namespace las::string::test {
         }
     }
 
-    TEST_CASE ("next line", "[string]") {
+    TEST_CASE ("String next line", "[string]") {
         std::string const TEST_STRING{"string_under_test"};
 
         const std::string EXPECTANCY_1_1{"string"};

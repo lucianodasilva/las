@@ -1,6 +1,6 @@
 #pragma once
-#ifndef BARRIER_HPP
-#define BARRIER_HPP
+#ifndef LAS_BARRIER_HPP
+#define LAS_BARRIER_HPP
 
 #include <atomic>
 

@@ -46,10 +46,10 @@ namespace las {
 
     enum struct os : uint8_t{
         unknown = 0,
-        windows,
-        gnu_linux,
-        android,
-        darwin,
+        windows = 1,
+        gnu_linux = 2,
+        android = 3,
+        darwin = 4,
 #if defined (LAS_OS_GNU_LINUX)
         native = gnu_linux,
 #elif defined (LAS_OS_ANDROID)

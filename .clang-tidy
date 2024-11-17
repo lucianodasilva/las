@@ -15,7 +15,7 @@ Checks:
 CheckOptions:
   # constvars variable
   - key: readability-identifier-naming.ConstantCase
-    value: UPPER_CASE
+    value: lower_case
   # namespace naming
   - key: readability-identifier-naming.NamespaceCase
     value: lower_case
@@ -28,7 +28,7 @@ CheckOptions:
   - key: readability-identifier-naming.TemplateParameterSuffix
     value: _t
   - key: readability-identifier-naming.ValueTemplateParameterCase
-    value: UPPER_CASE
+    value: lower_case
   # class method naming
   - key: readability-identifier-naming.MethodCase
     value: lower_case
@@ -48,7 +48,7 @@ CheckOptions:
     value: lower_case
   # constexpr variable
   - key: readability-identifier-naming.ConstexprVariableCase
-    value: UPPER_CASE
+    value: lower_case
   # static variable
   - key: readability-identifier-naming.GlobalVariableCase
     value: lower_case
@@ -60,7 +60,7 @@ CheckOptions:
     value: lower_case
   # global
   - key: readability-identifier-naming.GlobalConstantCase
-    value: UPPER_CASE
+    value: lower_case
   # enums
   - key: readability-identifier-naming.EnumCase
     value: lower_case
