@@ -35,7 +35,7 @@ namespace las {
         type_safe () = default;
 
         explicit type_safe (num_t const & val) :
-                value { val }
+            value { val }
         {}
 
         value_type value {};

@@ -6,6 +6,7 @@ set(las_include_files
         include/las/bits.hpp
         include/las/config.hpp
         include/las/debug.hpp
+        include/las/debug_print.hpp
         include/las/details.hpp
         include/las/dispatcher.hpp
         include/las/event.hpp
@@ -17,6 +18,8 @@ set(las_include_files
         include/las/scope_guards.hpp
         include/las/small_vector.hpp
         include/las/spin_mutex.hpp
+        include/las/static_ring_buffer.hpp
+        include/las/static_storage.hpp
         include/las/string.hpp
         include/las/system.hpp
         include/las/traits.hpp
@@ -66,6 +69,7 @@ if (BUILD_TESTS)
     add_executable(las-unit
             test/byte_swap.cpp
             test/dispatcher.cpp
+            test/static_ring_buffer.cpp
             test/ring_buffer.cpp
             test/scope_guards.cpp
             test/small_vector.cpp

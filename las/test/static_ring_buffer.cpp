@@ -181,12 +181,35 @@ namespace las::test {
             }
         }
 
-        GIVEN("a full static_ring_buffer") {
-            auto victim = static_ring_buffer < test_item, 2 > {};
+        GIVEN("a full static_ring_buffer with policy throw_on_overflow") {
+            auto victim = static_ring_buffer < test_item, 2, overflow_policy::throw_on_overflow > {};
             init_items (victim, 2, counters);
 
             THEN("exceeding capacity throws exception") {
                 REQUIRE_THROWS_AS(victim.push_back(make_item(999)), std::out_of_range);
+            }
+        }
+
+        GIVEN("a full static_ring_buffer with policy overwrite_on_overflow") {
+            auto               test1    = make_item(1);
+            auto               test2    = make_item(2);
+            auto               test3    = make_item(3);
+
+            auto victim = static_ring_buffer < test_item, 2, overflow_policy::overwrite_on_overflow > {};
+
+            victim.push_back(test1);
+            victim.push_back(test2);
+
+            THEN("exceeding capacity overwrites the first element") {
+                counters->reset();
+                victim.push_back(test3);
+
+                REQUIRE(counters->check_copies(1));
+                REQUIRE(counters->check_moves(0));
+                REQUIRE(counters->check_dtors(1));
+
+                REQUIRE(victim.front() == test2);
+                REQUIRE(victim.back() == test3);
             }
         }
     }
@@ -256,12 +279,35 @@ namespace las::test {
             }
         }
 
-        GIVEN("a full static_ring_buffer") {
-            auto victim = static_ring_buffer < test_item, 2 > {};
+        GIVEN("a full static_ring_buffer with policy throw_on_overflow") {
+            auto victim = static_ring_buffer < test_item, 2, overflow_policy::throw_on_overflow > {};
             init_items (victim, 2, counters);
 
             THEN("exceeding capacity throws exception") {
                 REQUIRE_THROWS_AS(victim.push_front(make_item(999)), std::out_of_range);
+            }
+        }
+
+        GIVEN("a full static_ring_buffer with policy overwrite_on_overflow") {
+            auto               test1    = make_item(1);
+            auto               test2    = make_item(2);
+            auto               test3    = make_item(3);
+
+            auto victim = static_ring_buffer < test_item, 2, overflow_policy::overwrite_on_overflow > {};
+
+            victim.push_back(test1);
+            victim.push_back(test2);
+
+            THEN("exceeding capacity overwrites the first element") {
+                counters->reset();
+                victim.push_front(test3);
+
+                REQUIRE(counters->check_copies(1));
+                REQUIRE(counters->check_moves(0));
+                REQUIRE(counters->check_dtors(1));
+
+                REQUIRE(victim.front() == test3);
+                REQUIRE(victim.back() == test1);
             }
         }
     }

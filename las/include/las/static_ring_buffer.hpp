@@ -11,8 +11,13 @@
 
 namespace las {
 
+	enum struct overflow_policy {
+		overwrite_on_overflow,
+		throw_on_overflow
+	};
+
 	template < typename value_t, std::size_t capacity_v >
-	struct static_ring_buffer {
+	struct basic_ring_buffer {
 		using value_type = std::decay_t < value_t >;
 		using reference = value_type &;
 		using const_reference = value_type const &;
@@ -24,12 +29,12 @@ namespace las {
 		struct iterator {
 
 			using iterator_category = std::forward_iterator_tag;
-			using value_type = static_ring_buffer::value_type;
+			using value_type = basic_ring_buffer::value_type;
 			using difference_type = std::ptrdiff_t;
-			using pointer = static_ring_buffer::pointer;
-			using reference = static_ring_buffer::reference;
+			using pointer = basic_ring_buffer::pointer;
+			using reference = basic_ring_buffer::reference;
 
-			iterator(static_ring_buffer &inst, std::size_t index) :
+			iterator(basic_ring_buffer &inst, std::size_t index) :
 					_inst(inst),
 					_index(index) {}
 
@@ -74,28 +79,28 @@ namespace las {
 			}
 
 		private:
-			static_ring_buffer & _inst;
+			basic_ring_buffer & _inst;
 			mutable std::size_t _index;
 		};
 
 		using const_iterator = iterator const;
 
 
-		~static_ring_buffer() {
+		virtual ~basic_ring_buffer() {
 			clear();
 		}
 
-		constexpr static_ring_buffer() = default;
+		constexpr basic_ring_buffer() = default;
 
-		constexpr static_ring_buffer(static_ring_buffer const &origin) {
+		constexpr basic_ring_buffer(basic_ring_buffer const &origin) {
 			copy_from(origin);
 		}
 
-		constexpr static_ring_buffer(static_ring_buffer &&origin) noexcept {
+		constexpr basic_ring_buffer(basic_ring_buffer &&origin) noexcept {
 			this->swap(origin);
 		}
 
-		constexpr static_ring_buffer &operator=(static_ring_buffer const &origin) {
+		constexpr basic_ring_buffer &operator=(basic_ring_buffer const &origin) {
 			if (&origin != this) {
 				copy_from(origin);
 			}
@@ -103,12 +108,12 @@ namespace las {
 			return *this;
 		}
 
-		constexpr static_ring_buffer &operator=(static_ring_buffer &&origin) noexcept {
+		constexpr basic_ring_buffer &operator=(basic_ring_buffer &&origin) noexcept {
 			this->swap(origin);
 			return *this;
 		}
 
-		constexpr void swap(static_ring_buffer & other)  noexcept {
+		constexpr void swap(basic_ring_buffer & other)  noexcept {
 			std::swap(_index_begin, other._index_begin);
 			std::swap(_index_end, other._index_end);
 		}
@@ -166,9 +171,7 @@ namespace las {
 
 		template<typename ... args_t>
 		constexpr void emplace_back(args_t &&... args) {
-			if (full()) {
-				throw std::out_of_range ("Fixed ring buffer capacity exceeded");
-			}
+			this->ensure_add_back_capacity();
 
 			new (ptr_to(size())) value_type (std::forward < args_t >(args)...);
 
@@ -185,9 +188,8 @@ namespace las {
 
 		template<typename ... args_t>
 		void emplace_front(args_t &&... args) {
-			if (full()) {
-				throw std::out_of_range ("Fixed ring buffer capacity exceeded");
-			}
+
+			this->ensure_add_front_capacity();
 
 			if (_index_begin == 0) {
 				// to simulate folding backwards, shift the transposition frame forward
@@ -205,7 +207,6 @@ namespace las {
 
 		template<typename input_iterator_t>
 		void append(input_iterator_t begin_it, input_iterator_t end_it) {
-
 			// TODO: naive implementation, please reimplement
 			for (auto it = begin_it; it != end_it; ++it) {
 				push_back(*it);
@@ -263,6 +264,9 @@ namespace las {
 		}
 
 		static constexpr auto capacity { next_pow_2 (capacity_v) };
+	protected:
+		virtual void ensure_add_front_capacity () = 0;
+		virtual void ensure_add_back_capacity () = 0;
 	private:
 
 		[[nodiscard]] std::ptrdiff_t transpose_index(std::ptrdiff_t index, std::ptrdiff_t offset = 0) const noexcept {
@@ -277,7 +281,7 @@ namespace las {
 			return _data.begin () + (transpose_index(_index_begin, index));
 		}
 
-		void copy_from(static_ring_buffer const &origin) {
+		void copy_from(basic_ring_buffer const &origin) {
 			// destroy current data
 			range_destroy();
 
@@ -339,6 +343,43 @@ namespace las {
 		size_type _index_begin {0};
 		size_type _index_end {0};
 		size_type _index_mask { capacity - 1 };
+	};
+
+	template < typename value_t, std::size_t capacity_v, overflow_policy overflow_policy_v = overflow_policy::throw_on_overflow >
+	struct static_ring_buffer : basic_ring_buffer < value_t, capacity_v > {
+		static_assert (true, "Unsupported overflow policy type");
+	};
+
+	template < typename value_t, std::size_t capacity_v >
+	struct static_ring_buffer < value_t, capacity_v, overflow_policy::throw_on_overflow > : basic_ring_buffer < value_t, capacity_v > {
+	protected:
+		void ensure_add_front_capacity() final {
+			if (this->full()) {
+				throw std::out_of_range ("Fixed ring buffer capacity exceeded");
+			}
+		}
+
+		void ensure_add_back_capacity() final {
+			if (this->full()) {
+				throw std::out_of_range ("Fixed ring buffer capacity exceeded");
+			}
+		}
+	};
+
+	template < typename value_t, std::size_t capacity_v >
+	struct static_ring_buffer < value_t, capacity_v, overflow_policy::overwrite_on_overflow > : basic_ring_buffer < value_t, capacity_v > {
+	protected:
+		void ensure_add_front_capacity() final {
+			if (this->full()) {
+				this->pop_back();
+			}
+		}
+
+		void ensure_add_back_capacity () final {
+			if (this->full ()) {
+				this->pop_front();
+			}
+		}
 	};
 
 }
