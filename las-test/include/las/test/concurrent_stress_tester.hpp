@@ -76,9 +76,9 @@ namespace las::test {
         stresser_threading_policy const             POLICY;
         std::size_t const                           THREAD_COUNT;
 
-        std::unique_ptr < barrier >                 _start_sync = std::make_unique < barrier > (THREAD_COUNT + 1);
-        std::unique_ptr < barrier >                 _end_sync = std::make_unique < barrier > (THREAD_COUNT + 1);
-        std::unique_ptr < std::atomic_bool >        _run_token = std::make_unique < std::atomic_bool > (true);
+        std::unique_ptr < barrier >                 _start_sync{ std::make_unique < barrier >(static_cast < int32_t >(THREAD_COUNT + 1)) };
+        std::unique_ptr < barrier >                 _end_sync{ std::make_unique < barrier >(static_cast < int32_t > (THREAD_COUNT + 1)) };
+        std::unique_ptr < std::atomic_bool >        _run_token{ std::make_unique < std::atomic_bool >(true) };
         std::unique_ptr < random_iterative_task >   _iterative_task;
         std::vector < std::thread >                 _lanes;
     };
