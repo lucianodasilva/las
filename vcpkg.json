@@ -1,6 +1,6 @@
 {
   "name": "las",
-  "version": "0.3",
+  "version": "0.4",
   "description": "Bundle of common tools and idioms",
   "homepage": "https://github.com/lucianodasilva/las",
   "license": "MIT",
@@ -21,14 +21,14 @@
       ]
     },
     "batch": {
-      "description" : "Tool for monitoring and reporting long running tests",
-        "dependencies": [
-            {
-            "name": "cxxopts",
-            "host": true
-            }
-        ]
+      "description": "Tool for monitoring and reporting long running tests",
+      "dependencies": [
+        {
+          "name": "cxxopts",
+          "host": true
+        }
+      ]
     }
   },
-  "builtin-baseline": "74ec888e385d189b42d6b398d0bbaa6f1b1d3b0e"
+  "builtin-baseline": "57c08a3223a1ec03c3a31986ee38d32e90b6039c"
 }
