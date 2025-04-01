@@ -6,8 +6,8 @@
 
 namespace las::debug {
 	struct message {
-		template < typename T >
-		message & operator << (const _t &) { return *this; }
+		template < typename value_t >
+		message & operator << (value_t const &) { return *this; }
 	};
 }
 
