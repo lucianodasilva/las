@@ -2,6 +2,8 @@
 #ifndef LAS_CONFIG_HPP
 #define LAS_CONFIG_HPP
 
+#include <cinttypes>
+
 // Detect operating system
 #if defined (__linux__) && !defined(__ANDROID__)
 #	define LAS_OS_GNU_LINUX 1
@@ -44,7 +46,7 @@
 
 namespace las {
 
-    enum struct os : uint8_t{
+    enum struct os : uint8_t {
         unknown = 0,
         windows = 1,
         gnu_linux = 2,

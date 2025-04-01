@@ -4,23 +4,23 @@ cmake_policy(SET CMP0054 NEW)
 include(cmake/tools.cmake)
 include(CMakePackageConfigHelpers)
 
-option(BUILD_GRAPHICS "Build graphics library" OFF)
 option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_BATCH "Build batch" OFF)
 
 if (BUILD_TESTS)
-    list(APPEND VCPKG_MANIFEST_FEATURES "test")
+    list(APPEND VCPKG_MANIFEST_FEATURES test)
 endif()
 
-if (BUILD_GRAPHICS)
-    list(APPEND VCPKG_MANIFEST_FEATURES "graphics")
+if (BUILD_BATCH)
+    list(APPEND VCPKG_MANIFEST_FEATURES batch)
 endif()
 
 vcpkg_manifest_version(LAS_VERSION)
 
-project(las CXX)
+project(las)
 
 add_subdirectory(las)
-add_subdirectory(las-graphics)
+add_subdirectory(las-batch)
 add_subdirectory(las-test)
 
 #region export targets

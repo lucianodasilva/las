@@ -139,7 +139,7 @@ namespace las::test {
     };
 
     template < typename value_t >
-    inline bool operator==(token < value_t > const & lhv, token < value_t > const & rhv) {
+    bool operator==(token < value_t > const & lhv, token < value_t > const & rhv) {
         return lhv.value() == rhv.value();
     }
 

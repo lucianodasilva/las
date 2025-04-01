@@ -19,6 +19,15 @@
           "host": true
         }
       ]
+    },
+    "batch": {
+      "description" : "Tool for monitoring and reporting long running tests",
+        "dependencies": [
+            {
+            "name": "cxxopts",
+            "host": true
+            }
+        ]
     }
   }
 }

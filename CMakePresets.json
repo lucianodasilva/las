@@ -23,19 +23,21 @@
             }
         },
         {
-            "name": "unit-tests-debug",
+            "name": "debug-all",
             "description": "Debug build with unit tests",
             "inherits": "debug",
             "cacheVariables": {
-                "BUILD_TESTS": "ON"
+                "BUILD_TESTS": "ON",
+                "BUILD_BATCH": "ON"
             }
         },
         {
-            "name": "unit-tests-release",
+            "name": "release-all",
             "description": "Release build with unit tests",
             "inherits": "release",
             "cacheVariables": {
-                "BUILD_TESTS": "ON"
+                "BUILD_TESTS": "ON",
+                "BUILD_BATCH": "ON"
             }
         }
     ]

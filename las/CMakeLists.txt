@@ -1,6 +1,7 @@
 
 #region project source files
 set(las_include_files
+        include/las/atomic_details.hpp
         include/las/las.h
         include/las/barrier.hpp
         include/las/bits.hpp

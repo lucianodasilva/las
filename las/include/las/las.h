@@ -2,6 +2,7 @@
 #ifndef LAS_H
 #define LAS_H
 
+#include "atomic_details.hpp"
 #include "barrier.hpp"
 #include "bits.hpp"
 #include "config.hpp"

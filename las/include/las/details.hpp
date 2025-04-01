@@ -2,6 +2,8 @@
 #ifndef LAS_DETAILS_HPP
 #define LAS_DETAILS_HPP
 
+#include "config.hpp"
+
 namespace las {
 
     class no_copy {
@@ -40,6 +42,15 @@ namespace las {
 
         value_type value {};
     };
+
+    // force inline marker
+    #if defined (LAS_COMPILER_GCC) || defined (LAS_COMPILER_CLANG)
+    #	define LAS_FORCE_INLINE [[gnu::always_inline]]
+    #elif defined (LAS_COMPILER_MSVC)
+    #	define LAS_FORCE_INLINE __forceinline
+    #else
+    #	define LAS_FORCE_INLINE inline
+    #endif
 
 }
 
