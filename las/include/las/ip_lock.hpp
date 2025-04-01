@@ -5,7 +5,7 @@
 #include "las/details.hpp"
 
 #include <memory>
-#include <string_view>
+#include <string>
 
 namespace las {
 

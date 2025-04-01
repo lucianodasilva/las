@@ -136,8 +136,10 @@ namespace las {
 #endif
 
 #if defined (LAS_OS_WINDOWS)
-    inline bool futex_wait (futex_value_t * address, futex_value_t expected_value) noexcept {
-        return WaitOnAddress (address, expected_value, INFINITE) == TRUE;
+    inline futex_wait_result futex_wait (futex_value_t* address, futex_value_t expected_value, std::chrono::milliseconds TIMEOUT) noexcept {
+		return WaitOnAddress(address, &expected_value, sizeof(futex_value_t), TIMEOUT.count()) == TRUE ?
+            futex_wait_result::awake :
+            futex_wait_result::timeout;
     }
 
     inline void futex_wake_all (futex_value_t * address) noexcept {

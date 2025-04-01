@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <numeric>
 #include <las/test/concurrent_stress_tester.hpp>
 
 namespace las::test {
