@@ -13,4 +13,17 @@ if(BUILD_BATCH)
 
     target_link_libraries(las-batch PRIVATE las::las cxxopts::cxxopts)
 
+    #region project export
+    set_target_properties(las-batch PROPERTIES
+            VERSION ${LAS_VERSION}
+            EXPORT_NAME batch)
+
+    install (
+            TARGETS las-batch
+            EXPORT LAS_INSTALL_TARGETS
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    #endregion
+
 endif()
