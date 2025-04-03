@@ -15,7 +15,6 @@ if(BUILD_BATCH)
 
     #region project export
     set_target_properties(las-batch PROPERTIES
-            VERSION ${LAS_VERSION}
             EXPORT_NAME batch)
 
     install (
