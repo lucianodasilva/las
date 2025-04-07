@@ -1,9 +1,10 @@
 {
   "name": "las",
-  "version": "0.5",
+  "version": "0.6",
   "description": "Bundle of common tools and idioms",
   "homepage": "https://github.com/lucianodasilva/las",
   "license": "MIT",
+  "builtin-baseline": "57c08a3223a1ec03c3a31986ee38d32e90b6039c",
   "dependencies": [
     {
       "name": "vcpkg-cmake-config",
@@ -11,15 +12,6 @@
     }
   ],
   "features": {
-    "test": {
-      "description": "With unit tests",
-      "dependencies": [
-        {
-          "name": "catch2",
-          "host": true
-        }
-      ]
-    },
     "batch": {
       "description": "Tool for monitoring and reporting long running tests",
       "dependencies": [
@@ -28,7 +20,15 @@
           "host": true
         }
       ]
+    },
+    "test": {
+      "description": "With unit tests",
+      "dependencies": [
+        {
+          "name": "catch2",
+          "host": true
+        }
+      ]
     }
-  },
-  "builtin-baseline": "57c08a3223a1ec03c3a31986ee38d32e90b6039c"
+  }
 }
