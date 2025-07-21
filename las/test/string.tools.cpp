@@ -310,7 +310,9 @@ namespace las::string::test {
             std::tuple { "0F", 15U },
             std::tuple { "12345678", 305419896U },
             std::tuple { "9ABCDEF", 162254319U },
-            std::tuple < char const *, float > {"3f5", 1013.0F}
+            std::tuple < char const *, float > {"3f5", 1013.0F},
+            // BUG Test: non-numeric chars should interrupt conversion
+            std::tuple { "0003\n34", 3U }
         );
 
         auto const result = las::string::as_number < decltype (expected) > (input, string::number_format::hex);
