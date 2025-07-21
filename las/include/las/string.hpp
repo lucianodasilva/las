@@ -104,16 +104,48 @@ namespace las::string {
         return trim_left(trim_right(view));
     }
 
-    template<typename num_t>
-    std::optional<num_t> as_number(std::string_view value) {
-        num_t num{};
+    enum struct number_format : uint8_t {
+        decimal,
+        hex
+    };
 
-        if (auto [p, e] = std::from_chars(value.data(), value.data() + value.size(), num);
-                e == std::errc()) {
-            return num;
+    template<typename num_t>
+    std::optional<num_t> as_number(std::string_view value, number_format const format) {
+        switch (format) {
+            case number_format::decimal: {
+                num_t num {};
+
+                if (auto [p, e] = std::from_chars(value.data(), value.data() + value.size(), num);
+                        e == std::errc()) {
+                    return num;
+                        }
+            }
+            case number_format::hex: {
+                std::optional < num_t > num {};
+
+                for (auto const & ch : value) {
+                    if (ch >= '0' && ch <= '9') {
+                        num = num.value_or (0) * 16 + (ch - '0');
+                    } else if (ch >= 'a' && ch <= 'f') {
+                        num = num.value_or (0) * 16 + (ch - 'a' + 10);
+                    } else if (ch >= 'A' && ch <= 'F') {
+                        num = num.value_or (0) * 16 + (ch - 'A' + 10);
+                    } else {
+                        break; // breaks on first failure, report converted data up to now
+                        // TODO: check behaviour and make consistent
+                    }
+                }
+
+                return num;
+            }
         }
 
         return std::nullopt;
+    }
+
+    template<typename num_t>
+    std::optional<num_t> as_number(std::string_view value) {
+        return as_number<num_t>(value, number_format::decimal);
     }
 
     template<>

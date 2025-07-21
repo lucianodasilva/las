@@ -304,6 +304,21 @@ namespace las::string::test {
         }
     }
 
+    TEST_CASE ("String as number, Hex", "[string]") {
+        auto [input, expected] = GENERATE(
+            std::tuple { "0f", 15U },
+            std::tuple { "0F", 15U },
+            std::tuple { "12345678", 305419896U },
+            std::tuple { "9ABCDEF", 162254319U },
+            std::tuple < char const *, float > {"3f5", 1013.0F}
+        );
+
+        auto const result = las::string::as_number < decltype (expected) > (input, string::number_format::hex);
+
+        REQUIRE(result.has_value());
+        REQUIRE(result.value_or(0) == expected);
+    }
+
     TEST_CASE ("String Cat", "[string]") {
 
         std::string const EXPECTANCY_VALID{"String Under Test"};

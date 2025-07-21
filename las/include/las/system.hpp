@@ -7,6 +7,7 @@
 #include <limits>
 #include <optional>
 #include <thread>
+#include <type_traits>
 #include <vector>
 
 #include <las/config.hpp>
@@ -76,6 +77,18 @@ namespace las {
     /// \return optional string with the file content
     std::optional < std::string > file_content (std::filesystem::path const & file);
 
+    /// Count leading zeroes
+    /// \param value unsigned integer value
+    /// \return the number of leading zero bits
+    template < typename value_t >
+    uint8_t clz (value_t value, std::enable_if_t < std::is_unsigned_v < value_t >, int > = 0);
+
+    /// Count trailing zeroes
+    /// \param value unsigned integer value
+    /// \return the number of trailing zero bits
+    template < typename value_t >
+    uint8_t ctz (value_t value, std::enable_if_t < std::is_unsigned_v < value_t >, int > = 0);
+
 #if defined (LAS_OS_GNU_LINUX)
 
     inline futex_wait_result futex_wait (futex_value_t * address, futex_value_t expected_value, std::chrono::milliseconds const TIMEOUT) noexcept {
@@ -131,6 +144,16 @@ namespace las {
         CPU_ZERO (&cpuset);
         CPU_SET (core_id, &cpuset);
         pthread_setaffinity_np (this_thread_native_handle (), sizeof (cpu_set_t), &cpuset);
+    }
+
+    template<typename value_t>
+    uint8_t clz(value_t value, std::enable_if_t<std::is_unsigned_v<value_t>, int> /* unused */) {
+        return __builtin_clzg (value, 0);
+    }
+
+    template<typename value_t>
+    uint8_t ctz(value_t value, std::enable_if_t<std::is_unsigned_v<value_t>, int> /* unused */) {
+        return __builtin_ctzg (value, 0);
     }
 
 #endif
